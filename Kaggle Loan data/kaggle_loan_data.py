@@ -8,9 +8,8 @@ Original file is located at
 """
 
 import pandas as pd
-url="https://raw.githubusercontent.com/KimYounghwan/bigdata/master/Loan%20payments%20data.csv"
+url="https://raw.githubusercontent.com/RecordK/Python_project/master/Kaggle%20Loan%20data/Loan%20payments%20data.csv"
 loan=pd.read_csv(url)
-# https://github.com/RecordK/Python_project/blob/79052820cf2f317d390f17f1ad91234fce379ec5/Kaggle%20Loan%20data/Loan%20payments%20data.csv
 
 # 파일을 읽고 행갯수와 칼럼별 타입을 출력하세요
 loan.info()
@@ -77,20 +76,197 @@ import numpy as np
 # PAIDOFF있으면 1,없으면 0
 loan["loan_status_yn"] = np.where( loan["loan_status"].str.contains("PAIDOFF") , 1, 0 ) 
 loan["loan_status_yn"]
+loan["loan_status_yn2"] = np.where( loan["loan_status"].str.contains("PAIDOFF") , 1, 0 )
 
 # 대출금 상환에 성공한 고객과 실패한 고객수를 바그래프로 출력
+loan.pivot_table(
+    index='loan_status_yn',
+    values='age',
+    aggfunc='count'
+).plot.bar()
 
 # 성별 상환율을 출력
+loan.pivot_table(
+    index='Gender',
+    values='loan_status_yn',
+    aggfunc=['count','sum','mean']
+)
+# 성별 상환율을 출력
+a=loan.pivot_table(
+    index='Gender',
+    values='loan_status_yn',
+)
+
 # 성별 상환율을 바그래프로 출력
+a.plot.bar()
 
 # 학력별 상환율을 출력
+b=loan.pivot_table(
+    index='education',
+    values='loan_status_yn'
+)
+b
+
 # 학력별 상환율을 바그래프로 출력
-
-
+b.plot.bar()
 
 # 대출금의 분포를 히스트그램으로 출력
+loan['Principal'].plot.hist()
 
 # 대출금별로 상환에 성공한 고객들과 실패한 고객들의 빈도수와 비율을 출력
+loan["loan_status_yn2"] = np.where( loan["loan_status"].str.contains("PAIDOFF") , 1, 0 ) 
+c=loan.pivot_table(
+    index='Principal',
+    columns='loan_status_yn',
+    values='age',
+    aggfunc='count'
+)
+c.plot.bar()
+d=loan.pivot_table(
+    index='Principal',
+    values='loan_status_yn',
+    aggfunc='mean'
+)
+d
+
 # 대출금별로 상환에 성공한 고객들과 실패한 고객들의 빈도수와 비율을 시각화하세요
+c.plot.bar()
+d.plot.bar()
+
+d.plot.pie(subplots=True)
 
 # 고객이 은행과 계약한 이후에 대출금을 지급받기까지 걸린 시간을 히스토그램으로 출력
+# effective_date 실제 계약 효과가 발휘하기 시작한 날짜
+# Month/Date/Year 형태 due_date 대출금 납부 기한 날짜
+# terms 대출금 지급까지 걸린 기간
+loan.terms.plot.hist()
+
+# 고객이 은행과 계약한 이후에 대출금을 지급받기까지 걸린 시간(term)별 상환 여부 빈도수 출력
+e=loan.pivot_table(
+    index='loan_status_yn',
+    columns='terms',
+    values='age',
+    aggfunc='count'
+).fillna(0)
+e
+
+# 고객이 은행과 계약한 이후에 대출금을 지급받기까지 걸린 시간(term)별 상환 여부 빈도수 막대그래프 출력
+e.plot.bar()
+
+# 고객이 은행으로부터 대출금을 지급받아서 계약 효력이 발생한 날짜별(effective_date) 빈도수 출력
+loan.pivot_table(
+    index='effective_date',
+    values='age',
+    aggfunc='count'
+)
+
+# 고객이 은행으로부터 대출금을 지급받아서 계약 효력이 발생한 날짜별(effective_date) 상환 여부 빈도수 막대그래프 출력
+loan.pivot_table(
+    index='effective_date',
+    columns='loan_status_yn',
+    values='age',
+    aggfunc='count'
+).plot.bar()
+
+# effective_date의 요일별 빈도수 출력
+week=['월','화','수','목','금','토','일']
+exec_dt = pd.to_datetime( loan['effective_date'] ) # exec_dt를 Timestamp타입 시리즈로 변환
+exec_dt_week = exec_dt.dt.day_of_week # Timestamp타입 시리즈에서 요일값(숫자) 추출
+wk_list = [ week[wk] for wk in exec_dt_week  ] #요일값(숫자)를 요일문자로 변환
+loan['exec_week']  = wk_list # 요일문자 리스트를 exec_week칼럼에 저장
+loan.pivot_table(
+    index='exec_week',
+    values='age',
+    aggfunc='count'
+).reindex(index=week)
+
+# effective_date의 요일별 상환 여부별 빈도수 출력
+loan.pivot_table(
+    index='exec_week',
+    columns='loan_status_yn',
+    values='age',
+    aggfunc='count'
+).fillna(0).reindex(index=week)
+
+# 대출금을 모두 상환하기로 계약한 날짜(due_date)별 빈도수
+loan.pivot_table(
+    index='due_date',
+    values='age',
+    aggfunc='count'
+)
+
+# 대출금을 모두 상환하기로 계약한 날짜(due_date)별 상환여부별 빈도수와 바그래프 출력
+f=loan.pivot_table(
+    index='due_date',
+    columns='loan_status_yn',
+    values='age',
+    aggfunc='count'
+).fillna(0)
+f
+f.plot.bar()
+
+#제출
+# 고객이 은행과 계약한 이후에 대출금을 지급받기까지 걸린 시간을 히스토그램으로 출력
+# effective_date 실제 계약 효과가 발휘하기 시작한 날짜
+# Month/Date/Year 형태 due_date 대출금 납부 기한 날짜
+# terms 대출금 지급까지 걸린 기간
+loan.terms.plot.hist()
+# 고객이 은행과 계약한 이후에 대출금을 지급받기까지 걸린 시간(term)별 상환 여부 빈도수 출력
+e=loan.pivot_table(
+    index='loan_status_yn',
+    columns='terms',
+    values='age',
+    aggfunc='count'
+).fillna(0)
+e
+# 고객이 은행과 계약한 이후에 대출금을 지급받기까지 걸린 시간(term)별 상환 여부 빈도수 막대그래프 출력
+e.plot.bar()
+# 고객이 은행으로부터 대출금을 지급받아서 계약 효력이 발생한 날짜별(effective_date) 빈도수 출력
+loan.pivot_table(
+    index='effective_date',
+    values='age',
+    aggfunc='count'
+)
+# 고객이 은행으로부터 대출금을 지급받아서 계약 효력이 발생한 날짜별(effective_date) 상환 여부 빈도수 막대그래프 출력
+loan.pivot_table(
+    index='effective_date',
+    columns='loan_status_yn',
+    values='age',
+    aggfunc='count'
+).plot.bar()
+# effective_date의 요일별 빈도수 출력
+week=['월','화','수','목','금','토','일']
+exec_dt = pd.to_datetime( loan['effective_date'] ) # exec_dt를 Timestamp타입 시리즈로 변환
+exec_dt_week = exec_dt.dt.day_of_week # Timestamp타입 시리즈에서 요일값(숫자) 추출
+wk_list = [ week[wk] for wk in exec_dt_week  ] #요일값(숫자)를 요일문자로 변환
+loan['exec_week']  = wk_list # 요일문자 리스트를 exec_week칼럼에 저장
+loan.pivot_table(
+    index='exec_week',
+    values='age',
+    aggfunc='count'
+).reindex(index=week)
+# effective_date의 요일별 상환 여부별 빈도수 출력
+loan.pivot_table(
+    index='exec_week',
+    columns='loan_status_yn',
+    values='age',
+    aggfunc='count'
+).fillna(0).reindex(index=week)
+# 대출금을 모두 상환하기로 계약한 날짜(due_date)별 빈도수
+loan.pivot_table(
+    index='due_date',
+    values='age',
+    aggfunc='count'
+)
+# 대출금을 모두 상환하기로 계약한 날짜(due_date)별 상환여부별 빈도수와 바그래프 출력
+f=loan.pivot_table(
+    index='due_date',
+    columns='loan_status_yn',
+    values='age',
+    aggfunc='count'
+).fillna(0)
+f
+f.plot.bar()
+
+loan.info()
+
