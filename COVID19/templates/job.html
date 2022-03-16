@@ -7,12 +7,7 @@
 <html>
 <head>
     <title>Job</title>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-    <link rel="stylesheet" href="../static/assets/css/main.css"/>
-    <noscript>
-        <link rel="stylesheet" href="../static/assets/css/noscript.css"/>
-    </noscript>
+    {% include 'include/default1.html' %}
 </head>
 <body class="is-preload">
 
@@ -29,7 +24,7 @@
     <section id="wrapper">
         <header>
             <div class="inner">
-                <h2>취업 현황</h2>
+                <h2>COVID-19와 취업 현황 상관관계 분석</h2>
                 <p>COVID-19 이후에 대두되는 취업 현황을 POST-COVID-19 전의 시대와 비교 분석을 하였습니다.</p>
             </div>
         </header>
@@ -37,57 +32,199 @@
         <!-- Content -->
         <div class="wrapper">
             <div class="inner">
-
-                <h2 class="major">주제 선정 이유</h2>
-                <p> 물적 자원이 없는 우리 나라에서 인적 자원의 극심한 경쟁으로 취업 현황은 다른 어떤 국가보다 중점적으로 관리하는 항목 중 하나입니다.
-                    국가정책적으로 매우 중요한 고용지표인 취업 현황은 정책과 부동산 가격, 청년 인구의 서울 집중화 등 정확한 요인을 파악하는데는 많은
-                    변수가 있지만 이번 프로젝트에서는 COVID19 확진자 수 기준 및 2020년 전 후 2개년으로 하여 바이러스가 어떤 영향을 미쳤는지 비교 분석하는
-                    것을 중점적으로 하고자 합니다.
-                </p>
-
-                <p>Vestibulum ultrices risus velit, sit amet blandit massa auctor sit amet. Sed eu lectus sem. Phasellus
-                    in odio at ipsum porttitor mollis id vel diam. Praesent sit amet posuere risus, eu faucibus lectus.
-                    Vivamus ex ligula, tempus pulvinar ipsum in, auctor porta quam. Proin nec commodo, vel scelerisque
-                    nisi scelerisque. Suspendisse id quam vel tortor tincidunt suscipit. Nullam auctor orci eu dolor
-                    consectetur, interdum ullamcorper ante tincidunt. Mauris felis nec felis elementum varius.</p>
                 <section>
-                    <h2 class="major">1. COVID19 확진자 수</h2>
-                    <p>This is <b>bold</b> and this is <strong>strong</strong>. This is <i>italic</i> and this is <em>emphasized</em>.
-                        This is <sup>superscript</sup> text and this is <sub>subscript</sub> text.
-                        This is <u>underlined</u> and this is code: <code>for (;;) { ... }</code>. Finally, <a href="#">this
-                            is a link</a>.</p>
-                    <h4>Blockquote</h4>
-                    <blockquote>Fringilla nisl. Donec accumsan interdum nisi, quis tincidunt felis sagittis eget tempus
-                        euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis
-                        iaculis volutpat ac adipiscing accumsan faucibus. Vestibulum ante ipsum primis in faucibus lorem
-                        ipsum dolor sit amet nullam adipiscing eu felis.
+                    <h2 class="major">서 론</h2>
+                    <p> 물적 자원이 없는 우리 나라에서 인적 자원의 극심한 경쟁으로 취업 현황은 다른 어떤 국가보다 중점적으로 관리하는 항목 중 하나입니다.
+                        국가 정책적으로도 매우 중요한 고용 지표인 취업 현황은 정책과 부동산 가격, 청년 인구의 서울 집중화 등 정확한 요인을 파악하는데는 많은
+                        변수가 있지만 이번 프로젝트에서는 COVID19가 취업 현황에 어떤 영향을 미쳤는지
+                        비교 분석하는 것을 중점적으로 하고자 합니다.
+                    </p>
+                    <blockquote>
+                        <h3>설치 및 Import Python Code</h3>
                     </blockquote>
-                    <h4>Preformatted</h4>
-                    <pre><code>i = 0;
 
-while (!deck.isInOrder()) {
-  print 'Iteration ' + i;
-  deck.shuffle();
-  i++;
-}
 
-print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
+                    <h4> 설치</h4>
+                    <pre><code>from google.colab import output
+!pip install chart_studio
+!pip install pyecharts==1.9.1
+!pip install echarts-themes-pypkg
+!pip install xmltodict
+output.clear()</code></pre>
+                    <h4> import</h4>
+                    <pre><code>import requests
+import xmltodict
+import pandas as pd
+from pandas import Series
+import xlrd
+from urllib.request import urlopen
+from urllib.parse import quote_plus
+from selenium.webdriver.common.keys import Keys
+import numpy as np
+from datetime import date
+import copy, json
+import chart_studio
+chart_studio.tools.set_credentials_file(username='username', api_key='api_key')
+import chart_studio.plotly as py
+import plotly.express as px
+import plotly.offline as pyo
+import plotly.graph_objs as go
+import plotly.graph_objects as go
+import plotly.io as pio
+from pyecharts.globals import ThemeType
+from pyecharts.commons.utils import JsCode
+from pyecharts.charts import Bar, Bar3D, Grid, Line, Liquid, Page, Pie, Timeline, Tab, Map
+from pyecharts import options as opts</code></pre>
                 </section>
-                <h3 class="major">출처</h3>
-                <p>Cras mattis ante fermentum, malesuada neque vitae, eleifend erat. Phasellus non pulvinar erat. Fusce
-                    tincidunt, nisl eget mattis egestas, purus ipsum consequat orci, sit amet lobortis lorem lacus in
-                    tellus. Sed ac elementum arcu. Quisque placerat auctor laoreet.</p>
+                <section>
+                    <h2 class="major">분 석</h2>
+                    <h2>COVID19 추세 분석</h2>
+                    <p>앞서 설명 드렸던 COVID19 추세 분석의 데이터 수집 방법 및 전처리, 시각화 부분을 간략하게 설명한 이후 본격적인
+                        취업현황 분석을 진행하겠습니다. </p>
+                    {% include 'include/job/code/covid.html'%}
+                    <h2>취업 현황 추세 분석</h2>
 
-                <section class="features">
-                    <article>
-                        <a href="#" class="image"><img src="../static/images/pic04.jpg" alt=""/></a>
-                        <h3 class="major">데이터</h3>
-                        <p>고용노동부와 교육통계서비스의 데이터를 사용했습니다. </p>
-                        <a href="http://www.index.go.kr/potal/main/EachDtlPageDetail.do?idx_cd=1505" class="special">e-나라지표</a>
-                        <a href="https://kess.kedi.re.kr/contents/dataset?itemCode=04&menuId=m_02_04_03_02&tabId=m3"
-                           class="special">교육통계서비스</a>
-                    </article>
-                </section>
+                    {% include 'include/job/total_job_info.html' %}
+
+
+                    <p>2002년부터 총 20개년 취업률 추세입니다. 좌측의 y축은 취업률 %를 나타내는 축이고 우측의 y축은 명 수를 나타내는 y 이중축을
+                        표기했습니다.
+                        전체적으로 구인 인원과 취업자 수가 크게 증가하지 않는 반면에 구직을 하는 사람들은 가파르게 증가하고 있습니다.
+                        그래프의 통계를 보아 COVID-19 이전에도 취업의 문은 COVID-19 외의 정책적, 사회적 현상 등등 다른 현상으로 인해 이미 좁아지고 있었다는 것을 알 수 있습니다.
+                        현재 이 그래프로 만으로는 COVID-19가 취업의 문을 좁히는데 영항이 있었는지 알기 힘듭니다.
+                        더 자세히 살펴 보기 위해 다른 통계로 살펴보겠습니다.
+                    </p>
+                    {% include 'include/job/job_info_by_year.html' %}
+
+
+                    <p>해당 그래프는 각 연도별 취업률을 꺾은선 그래프로 구인,구직,취업자 수를 막대그래프로 표기했습니다.
+                        일반적으로 3월에 모든 항목이 제일 높은 편이며 6,7,8월에 모든 항목의 수치가 낮은 편입니다.
+                        이를 보았을 때 해당되는 월은 우리나라의 평균적인 기온이 다른 계절보다 높은 여름이며 기온이 취업 현황에 영향을 미친다라는
+                        가설을 세워볼 수 있습니다. 정확한 분석과 결과는 추후에 기온의 데이터와 취업의 데이터를 취합하여 회귀 분석을 적용하여
+                        따로 알아보시는 것을 추천드립니다.
+
+                    </p>
+
+                    {% include 'include/job/covid19_job.html' %}
+                    <p> 상단의 통계는 국내 최초 확진자가 발생했던 20년을 기준으로 하여 전 후 2개년을 데이터를 추출하여 평균을 낸 통계입니다.
+                        PRE-COVID라고 되어 있는 남색 선이 2018년과 2019년의 평균 취업률이며 밝은 옥색의 선이 COVID-19 발병 이후 2개년의 평균 취업률입니다.
+                        크게 다른 형태를 띄고 있지는 않지만 전체적인 취업률은 COVID-19 이전의 2개년의 취업률이 발병 이후 보다 낮습니다.
+                    </p>
+                    <h2>학력별 취업 현황 분석</h2>
+
+                    {% include 'include/job/edutotal_info.html' %}
+                    <p>추세를 분석하기 위해 20개년의 월 데이터를 끌어다 쓰니 시각화하여 분석하기에는 다소 어려움이 있습니다.
+                        각 항목별 추세를 보려면 우측 상단에 보이는 항목을 끄고 해당 항목별로 취업률을 분석할 수 있으나 전체적으로 비교해보기는 쉽지
+                        않은 그래프입니다.
+                    </p>
+
+                    {% include 'include/job/rate_by_edu.html' %}
+                    <p>해당 그래프는 각 학력별로 탭을 나누었고 비교가 편하게 끔 COVID 전 후의 데이터를 따로 추출 평균을 내고 추출하였습니다.
+                        해당 그래프를 보면 전체적으로 post시대의 취업률이 낮으며 그 격차는 비교적 학력이 낮은 집단이 크다는 걸 알 수 있습니다.
+                    </p>
+
+                    {% include 'include/job/edu_look.html' %}
+                    <p>위 그래프는 구직 건수와 구인 인원의 비율을 파악하고자 파이그래프로 나타내었으며
+                        연도별로 확인해본 결과 대졸과 대학원졸의 비중이 많아졌으며 저학력의 비중이 많이 감소했습니다.
+                        이는 나라의 경제 발전으로 국민의 교육 수준이 점차 높아짐에 따라 나타나는 결과라고 예측해볼 수 있겠습니다.
+                        반면 구인인원의 경우에는 분류 블능의 데이터가 많아 정확한 분석이 힘듭니다.</p>
+
+                    {% include 'include/job/covid_edu_look.html' %}
+                    <p>COVID 전 후의 구직건수와 구인 인원 분석입니다. 큰 차이가 보이지는 않지만 유의미한
+                        부분은 초등졸이하의 집단의 비중이 전의 전의 시대에 비교해서 높아졌습니다.</p>
+
+                    <h2>직종별 취업 현황 분석</h2>
+                    {% include 'include/job/kindrate_info.html' %}
+                    <p>직종별 추세를 보기 위해 해당 그래프를 도식화하였습니다. 직종이 많은 관계로
+                        전체적인 비교는 하단의 통계를 통해 분석하겠습니다.</p>
+
+                    {% include 'include/job/lookF_ten.html' %}
+                    <p>그래프를 통해 기계관리직, 재료관련직, 화학관련직, 생산직, 농립어업, 보건의료, 운전운송 직종이 구인인원이 더 많아지는 추세인 것과
+                        섬유의복, 전기전자 직종이 구인인원이 적어지는 추세인 것을 알 수 있습니다. </p>
+
+                    {% include 'include/job/Cov_look_ten_line.html' %}
+                    <p>구인 인원의 경우에는 군인을 제외하고 COVID19 이전에 비해 모든 직종에서 적어졌으며
+                        군인의 경우에는 구인 인원을 따로 반영하지 않아서 제대로된 데이터가 반영되지 않은 것으로 보입니다.
+                        반면 구직 건 수는 모든 직종에서 늘어난 것으로 보아 COVID19가 취업 현황에 영향을 끼친 것으로 판단됩니다.</p>
+
+                    {% include 'include/job/kind_look.html' %}
+                    <p>해당 파이 그래프는 각 연도별 직종의 구인 및 구직 건수의 비율을 파악하고자 도식화했습니다.
+                        경영회계사무의 경우에는 과학기술의 발전 및 프로그램의 발전으로 인해 그 비중이 점차 줄어들고 있는 추세이며
+                        특히 구인인원의 경우에는 그 비중이 확연하게 차이가 나는 것을 확인할 수 있습니다. 줄어든 직종은
+                        비단 경영회계사무 뿐만이 아니라 영업원 및 판매 분야 또한 과학기술의 발전으로 인한 홍보, 마케팅, 플랫폼
+                        서비스 등등의 이유로 점차 줄어드는 추세라고 판단됩니다.
+                        구인 인원이 증가된 직종을 확인하면 생산단순직과 기계관리직, 재료관련직, 보건의료, 운전 및 운송 분야가
+                        증가된 것을 확인할 수 있습니다. 보건의료의 경우에는 COVID19 상황에 의료 인력이 부족하다는 작금의 현실을 기사를 통해 흔히들 알고 있어
+                        단순히 COVID19로 인해 인력이 부족하다고 판단하기 쉬우나 20년의 데이터 수치로 확인 했을 때는 현재 처한 특수한 상황뿐만
+                        이 아니라는 것을 시사합니다.
+                        생산단순직, 재료관련직, 기계관리직의 경우에는 과학기술을 예로 들 수 있습니다. 우리나라의
+                        주요 수출 품목 중 하나인 반도체의 경우에는 옛날처럼 컴퓨터나 정보통신기기에만 들어가는 것이 아니라
+                        자동차에도 들어가며 IoT 즉 사물 인터넷에도 들어가며 그 수요는 폭발적으로 증가해왔습니다. COVID19로 인해
+                        비대면 및 재택근무가 늘어나며 반도체의 수요를 더욱 가속화 시켰고 자동차의 경우에는 지금 계약을 하더라도
+                        짧게는 몇 개월 이상 걸리며 길게는 몇 년 뒤에나 받을 수 있다는 것을 뉴스로 흔히들 접해볼 수 있었을 것입니다.
+                        이렇 듯 그 수요를 맞추기 위한 공급을 위해 자연스레 공장이 늘어났을 것이며 늘어난 공장에서 일할
+                        생산 단순직과 기계관리직의 구인인원이 증가했을 것이라는 추측을 해볼 수 있습니다.
+                        신소재의 경우에는 배터리 및 다양한 기능을 가진 개발이 반도체에 이어 중요한 산업이 된 현재 인력을 확충중이다라는 것 또한
+                        알 수 있습니다.
+                    </p>
+
+                    {% include 'include/job/covid_kind_look.html' %}
+                    <p>전반적으로 앞의 분석과 비슷한 추세이나 조금 더 비중이 눈에 띄게 성장한 부분은 보건 의료와 생산 단순직인 것을 확인할 수 있습니다.
+                        공장의 폐쇄적인 곳에서 종사하다 보면 COVID19 감염확률이 증가함에 따라 종사자들이 일을 떠나면서 필요인력의
+                        충원이 이뤄졌을 것이다라고 추측이 가능하며 보건의료 분야의 경우에는 지금의 현실을 충분히 반영된 부분이라고 판단할 수 있습니다.</p>
+
+                    <h2>지역별 취업 현황 분석</h2>
+
+                    {% include 'include/job/loc_ten.html' %}
+                    <p>통계를 확인하면 2018년의 경우와 세종시의 raw데이터 오류로 정확한 수치가 반영된 것이 아닌 것으로 생각이 되며
+                        지역 전반적으로 신규 구인 인원 수가 낮다는 것을 관찰할 수 있습니다.</p>
+
+                    {% include 'include/job/loc_look.html' %}
+                    <p>상단의 파이 그래프를 통해서 구직 구인 인원의 지역별 편차를 확인할 수 있습니다.
+                    구인인원의 경우에는 경기를 제외하고 거의 비슷하나 구직 인원의 경우에는 서울시 및 광역시가 구직과
+                    구인의 격차가 크다는 것을 확인하는 것으로 보았을 때 일을 할 수 있는 경제활동인구가 경기 및 광역시에 집중되어 있는 것을 시사합니다.
+                    부동산 뿐 아니라 일자리에서도 수도권에 집중이 되어있고 해가 가면 갈수록 그 격차는 심해지는 것을 줄일 필요가 있다고 생각합니다.
+                    이 통계를 COVID 전 후로 확인을 하고 싶었으나 2018년의 데이터의 오류로 인해 통계의 정확성이 떨어져서 그 항목은 생략했습니다.</p>
+
+                    {% include 'include/job/cov_bar.html'%}
+                    <p>위의 그래프는 2019년과 2020년의 데이터이며 2021년의 데이터가 아직은 집계되지 않아 큰 차이는 보이지 않지만 전반적으로 취업인원이
+                    줄어든 것으로 보아 COVID의 영향이 어느정도 있었다고 볼 수 있겠습니다.</p>
+
+                    {% include 'include/job/cov_rate_time.html'%}
+                    <p>각 학과별 취업률입니다. 전반적으로 큰 차이가 없어보입니다. 수집된 데이터량이 비교적 짧기 때문에 COVID의 영향을 받았다고는 볼 수 없을 것
+                    같습니다.</p>
+
+                    {% include 'include/job/code/data.html'%}
+                    {% include 'include/job/code/total.html'%}
+                    {% include 'include/job/code/edu.html'%}
+                    {% include 'include/job/code/kind.html'%}
+                    {% include 'include/job/code/loc.html'%}
+                    {% include 'include/job/code/loc.html'%}
+                    <h3 class="major">출처</h3>
+                    <p>하기 내용을 참고하여 프로젝트를 진행하였습니다.</p>
+
+                    <section class="features">
+                        <article>
+                            <a href="#" class="image"><img src="../static/images/newspaper.jpg" alt=""/></a>
+                            <h3 class="major">COVID19 정보 출처</h3>
+                            <p>해당 COVID19 정보를 참조하여 프로젝트를 진행했습니다.</p>
+                            <a href="https://korean.cdc.gov/coronavirus/2019-ncov/variants/omicron-variant.html"
+                               class="special">CDC</a>
+                            <a href="https://www.yna.co.kr/view/AKR20211130174952530" class="special">연합뉴스</a>
+                            <a href="https://www.doctorsnews.co.kr/news/articleView.html?idxno=133009"
+                               class="special">의협신문</a>
+                        </article>
+                        <article>
+                            <a href="#" class="image"><img src="../static/images/data.jpg" alt=""/></a>
+                            <h3 class="major">데이터</h3>
+                            <p>공공데이터 포털, 고용노동부와 교육통계서비스의 데이터를 사용했습니다. </p>
+                            <a href="https://www.data.go.kr/iim/api/selectAPIAcountView.do" class="special">공공데이터 포털</a>
+                            <a href="http://www.index.go.kr/potal/main/EachDtlPageDetail.do?idx_cd=1505"
+                               class="special">e-나라지표</a>
+                            <a href="https://kess.kedi.re.kr/contents/dataset?itemCode=04&menuId=m_02_04_03_02&tabId=m3"
+                               class="special">교육통계서비스</a>
+                        </article>
+                    </section>
 
             </div>
         </div>
@@ -100,12 +237,7 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 </div>
 
 <!-- Scripts -->
-<script src="../static/assets/js/jquery.min.js"></script>
-<script src="../static/assets/js/jquery.scrollex.min.js"></script>
-<script src="../static/assets/js/browser.min.js"></script>
-<script src="../static/assets/js/breakpoints.min.js"></script>
-<script src="../static/assets/js/util.js"></script>
-<script src="../static/assets/js/main.js"></script>
+{% include 'include/script.html' %}
 
 </body>
 </html>

@@ -7,12 +7,7 @@
 <html>
 <head>
     <title>Generic - Solid State by HTML5 UP</title>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-    <link rel="stylesheet" href="../static/assets/css/main.css"/>
-    <noscript>
-        <link rel="stylesheet" href="../static/assets/css/noscript.css"/>
-    </noscript>
+    {% include 'include/default1.html' %}
 </head>
 <body class="is-preload">
 
@@ -29,8 +24,14 @@
     <section id="wrapper">
         <header>
             <div class="inner">
-                <h2>취업 현황</h2>
-                <p>COVID-19 이후에 대두되는 취업 현황을 POST-COVID-19 전의 시대와 비교 분석을 하였습니다.</p>
+                <h2>코로나와 카드소비내역 데이터간 상관관계 분석</h2>
+
+                <p> 코로나가 우리의 삶에서 영향을 미친 분야는 다양하다. 대부분의 분야에서 코로나는 우리의 삶을 변화시켰지만, 그 중
+                    큰 변화가 발생한 분야가 경제 분야라는 것에 대해서는 모두가 동의할 것이다. 지난 2년간 대한민국 뿐 아니라 전세계
+                    적으로 가계의 소비규모 축소, 기업의 투자위축 등 다양한 경제적 악신호가 지속적으로 유지되어 왔으며, 경제 불황에서
+                    벗어나기 위한 각국의 경제 부양책이 활발히 이루어지고 있다. 따라서 저희 조는 가장 쉽게 접근 가능한 국민들의 소비,
+                    지출 데이터를 카드사로부터 수집하여 다시 한 번 코로나의 영향력에 대한 경각심을 일깨워 하루 빨리 코로나로부터
+                    벗어날 수 있도록 데이터 분석을 진행해보고자 한다.</p>
             </div>
         </header>
 
@@ -38,44 +39,1003 @@
         <div class="wrapper">
             <div class="inner">
 
-                <h3 class="major">Lorem ipsum dolor</h3>
-                <p>Morbi mattis mi consectetur tortor elementum, varius pellentesque velit convallis. Aenean tincidunt
-                    lectus auctor mauris maximus, ac scelerisque ipsum tempor. Duis vulputate ex et ex tincidunt, quis
-                    lacinia velit aliquet. Duis non efficitur nisi, id malesuada justo. Maecenas sagittis felis ac
-                    sagittis semper. Curabitur purus leo donec vel dolor at arcu tincidunt bibendum. Interdum et
-                    malesuada fames ac ante ipsum primis in faucibus. Fusce ut aliquet justo. Donec id neque ipsum.
-                    Integer eget ultricies odio. Nam vel ex a orci fringilla tincidunt. Aliquam eleifend ligula non
-                    velit accumsan cursus. Etiam ut gravida sapien.</p>
+                <h2 class="major">데이터 다운로드 및 전처리 작업(EDA)</h2>
 
-                <p>Vestibulum ultrices risus velit, sit amet blandit massa auctor sit amet. Sed eu lectus sem. Phasellus
-                    in odio at ipsum porttitor mollis id vel diam. Praesent sit amet posuere risus, eu faucibus lectus.
-                    Vivamus ex ligula, tempus pulvinar ipsum in, auctor porta quam. Proin nec commodo, vel scelerisque
-                    nisi scelerisque. Suspendisse id quam vel tortor tincidunt suscipit. Nullam auctor orci eu dolor
-                    consectetur, interdum ullamcorper ante tincidunt. Mauris felis nec felis elementum varius.</p>
+                <p>대한민국 카드지출및 소비내역에 관한 데이터를 사용하기 위해 서울시 빅데이터 캠퍼스, 공공데이터 포털, 그리고 금융 데이터 포털
+                    사이트를 활용하였다. 카드사들이 전국의 업종별 가맹점들에게 보급한 단말기에 전송된 카드 결제내역을 기간별로 제공하고 있는데, 데이터들 중
+                    코로나와의 상관관계 분석을 위해 코로나가 발생한 2019년을 기준으로 하여 전후 2-3개년의 데이터들을 추출하기로 결정하였다. </p>
+
+                <p>아래의 코드는 해당 사이트들에서 다운로드 받은 csv 파일 형식의 데이터들로써, 코로나와 연관성이 높다고 생각되는 변수들을 중심으로 필요한
+                    데이터들을 추출하는 전처리 작업및 pyechart 를 이용하기 위한 시각화 작업 세팅을 포함하고 있다.</p>
+
+                <blockquote>2016~2021년 사이의 각 업종별 카드매출 내역 데이터</blockquote>
+
+                <pre><code>
+                    # 카드사의 전국 점포의 카드 매출 데이터 불러오기
+
+                    name_sex = pd.read_csv(path, encoding="ksc5601", thousands=',')
+                    name_sex.info()
+
+                    # 결측지 존재 여부 확인 -> 확인 결과 없음
+
+                    name_sex.isna().sum()
+
+                    # 업종코드가 어떤 업종인지 표시하기 위해 업종별 코드 데이터 가져오기
+
+                    path='/content/drive/MyDrive/카드 데이터/카드소비업종코드.csv'
+
+                    code=pd.read_csv(path, encoding='ksc5601')
+                    code.info()
+
+                    # 코드가 소문자로 도어있으므로 추후 카드 매출 데이터에 병합하기 위해 모두 대문자로 바꿔주기
+
+                    code = code.applymap(str.upper)
+                    code.head()
+
+                    # 데이터 병합 전 컬럼이름 통일을 위해 이름 변환 작업
+
+                    # 업종별 코드 데이터 컬럼 이름 수정
+                    code.rename({'업종코드(UPJONG_CD)':'업종코드',
+                                 '대분류(CLASS1)':'대분류',
+                                 '중분류(CLASS2)':'중분류',
+                                 '소분류(CLASS3)':'소분류'},
+                                axis=1, inplace=True)
+
+                    # 카드 매출 데이터 컬럼 이름 수정
+
+                    name_sex.rename({'서울시민업종코드(UPJONG_CD)':'업종코드',
+                                     '기준년월(YM)':'년월',
+                                     '성별(GEDNER)':'성별',
+                                     '연령대별(AGE)':'연령대별',
+                                     '카드이용금액계(AMT_CORR)':'카드이용금액'},
+                                    axis=1, inplace=True)
+
+                    # 사용하지 않는 컬럼들 삭제하기
+
+                    name_sex.drop(columns=['고객주소블록코드(BLOCK_CD)','카드이용건수계(USECT_CORR)'],
+                                  inplace=True)
+
+                    # 업종별 코드 기준으로 두개의 데이터 병합
+
+                    sex_age = name_sex.merge(code, on='업종코드')
+                    sex_age
+
+                    # 연도별 데이터 출력을 위해 년월 컬럼에서 년과 월 컬럼으로 데이터 쪼개기
+
+                    sex_age['년월일']=pd.to_datetime(
+                        sex_age['년월'],
+                        format='%Y%m'
+                    )
+
+                    sex_age.drop(columns=['년월'], axis=1, inplace=True)
+
+                    sex_age['년']=sex_age['년월일'].dt.year
+                    sex_age['월']=sex_age['년월일'].dt.month
+
+                    sex_age.head()
+                </code></pre>
+
+                <pre><code>
+                    # 반응형 차트 구현을 위해 pyecharts 다운로드하기
+
+                    from google.colab import output
+                    !pip install chart_studio
+                    !pip install pyecharts
+                    !pip install echarts-themes-pypkg
+                    output.clear()
+
+                    import pandas as pd
+                    from pandas import Series
+                    import numpy as np
+                    from datetime import date
+
+                    import copy, json
+                    import chart_studio
+                    chart_studio.tools.set_credentials_file(username='username', api_key='api_key')
+
+                    from IPython.display import IFrame
+                    import chart_studio.plotly as py
+                    import plotly.express as px
+                    import plotly.offline as pyo
+                    import plotly.graph_objs as go
+                    import plotly.graph_objects as go
+                    import plotly.io as pio
+
+                    from pyecharts.globals import ThemeType
+                    from pyecharts.commons.utils import JsCode
+                    from pyecharts.charts import Bar, Bar3D, Grid, Line, Liquid, Page, Pie, Timeline, Tab, Map, Grid
+                    from pyecharts import options as opts
+
+                    import folium, webbrowser, IPython, warnings
+                    warnings.filterwarnings('ignore')
+                </code></pre>
+
+                <p>해당 전처리 과정을 통해 업종코드 데이터와 연도별 카드지출내역 데이터를 병합하였고, 해당 데이터에서 업종코드, 업종의 대/중/소분류,
+                    성별, 연령대별, 년월일, 마지막으로 카드이용금액에 대한 정보를 추출했다. 아래는 해당 컬럼들에 대한 정보가 담겨있는 상위 5개 항목 dataframe
+                    이다.</p>
+
+                <img src="../static/images/card/sex_age.png">
+
+                <p></p>
+                <h2 class="major">2016 ~ 2021년 연령대별 각 업종간 카드 지출내역 분석</h2>
+
+                <blockquote>연령대별 각 업종간 카드 지출내역 데이터 추출</blockquote>
+
+                <pre><code>
+                    # 연도별로 연령대 기준으로 했을때 업종간 카드 매출 분석 데이터 테이블 만들기
+
+                    year_age=sex_age.pivot_table(
+                        index=['년','연령대별'],
+                        columns=['대분류'],
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    year_age
+                </code></pre>
+
+                <p>pivot_table 을 통해 년도를 level1, 연령대를 level2의 MultiIndex 로 구성하였으며, columns 는 업종 대분류로 카드이용
+                    내역에 관한 정보를 추출할 수 있도록 하였다.</p>
+
+                <img src="../static/images/card/year_age.png">
+
+                <p>
+                </p>
+
+                <blockquote>연령대별 업종간 카드지출내역 막대그래프 분석</blockquote>
+
+                <pre><code>
+                    # 연도별로 연령대 기준으로 했을때 업종간 카드 매출 분석 데이터 막대그래프
+
+                    age_year = Timeline(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_schema(is_auto_play=True)
+
+                    for t in year_age.index.get_level_values(0).unique():
+                      df=year_age.loc[t]
+                      age_year.add((Bar(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_xaxis(df.index.tolist())
+                                    .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                                    .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                                    .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                                    .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                                    .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                                    .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                                    .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                                    .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                                    .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                                    .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                                    .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                                    .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                                    .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                                    .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                                    .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                                   .set_global_opts(title_opts=opts.TitleOpts(title="연도별 연령대별 카드지출액"),
+                                                    yaxis_opts=opts.AxisOpts(name='지출', name_location = "start"),
+                                                    legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="70%",pos_right="0%", orient="vertical",legend_icon ='pin'))),"{}년도".format(t))
+                </code></pre>
+
+                {% include 'include/card/age_year_bar.html' %}
+                <p></p>
+                <p>막대 그래프의 높이를 통해 각 연도에 10대 ~ 70대 이상의 각 연령대별로 카드소비액을 알 수 있으며, 각각의 연령대에서 업종들의 소비
+                    편중 정도를 확인가능하다.이제 해당 정보를 이용하여 2018,2019년을 pre-corona , 2020,2021년을 post-corona로 나누어 분석을
+                    시작한다.</p>
+
+                <blockquote>코로나 전후 연령대별 각 업종간 카드지출내역 분석</blockquote>
+
+                <pre><code>
+                    # 코로나 이전인 18, 19년에 대해 코로나 상황 컬럼 만들기
+                    sex_age.loc[sex_age['년'] == 2016, '코로나상황'] = 'pre_corona'
+                    sex_age.loc[sex_age['년'] == 2017, '코로나상황'] = 'pre_corona'
+                    sex_age.loc[sex_age['년'] == 2018, '코로나상황'] = 'pre_corona'
+                    sex_age.loc[sex_age['년'] == 2019, '코로나상황'] = 'pre_corona'
+
+                    # 코로나 이후인 20, 21년에 대해 코로나 상황 컬럼 만들기
+                    sex_age.loc[sex_age['년'] == 2020, '코로나상황'] = 'post_corona'
+                    sex_age.loc[sex_age['년'] == 2021, '코로나상황'] = 'post_corona'
+
+                    # 코로나전후 데이터 코로나 상황별 요일별 업종에 따른 소비지출액 비교
+                    age_covid=sex_age.pivot_table(
+                        index=['코로나상황','연령대별'],
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    age_covid
+
+                    # 막대그래프
+
+                    covid_by_age=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px',
+                            )
+                    ).add_schema(is_auto_play=True)
+
+                    for t in age_covid.index.get_level_values(0).unique().sort_values(ascending=False).tolist():
+                      df=age_covid.loc[t]
+
+                      covid_by_age.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title='코로나 전후로 연령대별 카드지출액'),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p>상단의 코드를 통해 연도별 데이터를 코로나 이전과 이후로 분류하였으며, 이를 이용해 코로나 전후의 연령대별 카드지출 분석을 막대그래프로
+                    진행하였다.</p>
+
+                {% include 'include/card/covid_age_bar.html' %}
+
+                <blockquote>분석의의</blockquote>
+
+                <p>해당 그래프를 통해 코로나 전에 비해 코로나 후에 전체 연령대에 걸쳐 전반적인 카드지출이 현저하게 감소한것을 관찰 가능하다.
+                    또한 20대에서 두드러진 결과 중 하나가 바로 코로나 이후 전자 상거래에 지출된 내역이 굉장히 큰 비중으로 증가했음을 볼 수 있다.이는
+                    코로나 이후 비대면 서비스가 증가하고 오프라인 시장의 위축으로 활동성이 가장 높은 20대에서 인터넷을 통한 중고거래 및 상품 구매가
+                    활발하게 이루어지고 있음을 시사한다.</p>
+
+                <h2 class="major">2016 ~ 2021년 성별 각 업종간 카드 지출내역 분석</h2>
+                <blockquote>성별 각 업종간 카드지출데이터 추출</blockquote>
+                <pre><code>
+                    # 연도별로 성별 기준으로 했을때 업종간 카드 매출 분석 데이터 테이블 만들기
+
+                    # 남여 데이터 분리
+
+                    man_year = sex_age[sex_age['성별']== 'M']
+                    woman_year = sex_age[sex_age['성별']== 'F']
+                    man_year
+                    woman_year
+
+                    # 남자들의 카드이용금액
+                    year_man=man_year.pivot_table(
+                        index=['년','성별'],
+                        columns=['대분류'],
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    # 여자들의 카드이용금액
+                    year_woman=woman_year.pivot_table(
+                        index=['년','성별'],
+                        columns=['대분류'],
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+                    year_woman
+                </code></pre>
+
+                <p></p>
+                <p>먼저 기존의 데이터를 남여를 기준으로 분리하여 데이터를 추출하였다.</p>
+                <p></p>
+
+                <img src="../static/images/card/year_man.png">
+                <img src="../static/images/card/year_woman.png">
+                <p></p>
+
+                <blockquote>전체 연도동안 성별간 업종별 소비지출내역 파이차트 분석</blockquote>
+
+                {% include 'include/card/man_woman_year_final.html' %}
+
+                <blockquote>코로나 전후 성별간 업종별 소비지출내역 파이차트 분석</blockquote>
+
+                {% include 'include/card/man_woman_corona_final.html' %}
+
+                <blockquote>분석의의</blockquote>
+                <p>분석결과 남성의 경우 코로나 전에 비해 현재 전자상거래에 지출하는 액수의 비율이 상당부분 증가하였고,
+                    여성 주유에 지출하는 비용이 크게 증가하였다. 남여간 공통적으로 나타나는 현상은 바로 여행/교통분야에서의
+                    급격한 지출액 감소로 나타나고 있다. 이역시 코로나로 인한 인터넷의 활용도 증가, 코로나 감염에 대한 불안감
+                    상승으로 인한 대중교통 이용감소 및 자가용 활용도 증가, 그리고 코로나로 인한 각국의 해외 여행 금지 정책이
+                    큰 영향을 끼친것으로 보인다.</p>
+                <p></p>
+
+                <h2 class="major">2016 ~ 2021년 통합 업종별 카드 지출내역 분석</h2>
+                <p>이제 다음의 데이터를 종합하여 전체적인 차이를 분석해보자</p>
+                <pre><code>
+                    # 연도별 통합 각 업종별 지출액 분석
+                    total_corona=sex_age.pivot_table(
+                        index='년',
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    total_corona
+
+                    # 연도별, 각 업종별 카드소비액 파이차트 도식화
+                    corona_industry = Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='400px',
+                            width='600px')
+                    ).add_schema(is_auto_play=True)
+
+                    for t in total_corona.index:
+                      a=total_corona.loc[t,'가전/가구':'주유'].values.tolist()
+                      c=[[i] for i in a]
+
+                      b=total_corona.columns.tolist()
+                      d=[[i] for i in b]
+                      corona_industry.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                                          rosetype="radius",radius=["30%", "60%"]))
+                          .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+                          .set_global_opts(title_opts=opts.TitleOpts(title="연도별 각 업종별 카드매출"),
+                                          legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+                        ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                <p>코드를 통해 연도 경과에 따른 업종별 카드지출내역을 분석하여 파이차트를 도출하였다.</p>
+                <p></p>
+
+                <blockquote>연도별 업종간 카드지출내역 파이차트 분석</blockquote>
+
+                {% include 'include/card/total_corona_final.html' %}
+                <p></p>
+
+                <blockquote>코로나 전후 업종간 카드지출내역 파이차트 분석</blockquote>
+
+                {% include 'include/card/ind_pre_post_corona_final.html' %}
+
+                <p></p>
+
+                <blockquote>분석의의</blockquote>
+                <p>연령별, 성별 분석을 통해 알 수 있었던 결과와 동일하게 통합 데이터에서의 코로나 전후 비교 분석 결과도
+                    전자상거래, 주유, 가정생활/서비스 분야에서의 증가와 유통, 여행/교통 분양에서의 감소가 두드러지게 나타
+                    났다.</p>
+
+                <h2 class="major">2016 ~ 2021년 지역별 업종간 카드 지출내역 분석</h2>
+                <blockquote>지역별 데이터를 활용한 전처리 작업</blockquote>
+
+                <pre><code>
+                    # 일별, 지역별 데이터 불러오기
+
+                    region = pd.read_csv(
+                        path,
+                        encoding='ksc5601'
+                    )
+
+                    # 컬럼값 이름 쉬운걸로 바꾸기
+                    region.rename({'가맹점주소광역시도(SIDO)':'시도',
+                                     '가맹점주소시군구(SGG)':'구',
+                                     '업종대분류(UPJONG_CLASS1)':'대분류',
+                                     '기준일자(YMD)':'년월일',
+                                     '카드이용금액계(AMT_CORR)':'카드이용금액'},
+                                    axis=1, inplace=True)
+
+                    # 사용하지 않는 컬럼들 drop
+                    region.drop(columns=['고객주소집계구별(TOT_REG_CD)','카드이용건수계(USECT_CORR)'
+                                         ], axis=1, inplace=True)
+
+                    # 업종코드와 데이터 결합
+
+                    region_1 = code.merge(region, on='대분류')
+
+                    # 년월일 칼럼 데이트타임으로 변환하기
+
+                    region_1['년월일']=pd.to_datetime(
+                        region_1['년월일'],
+                        format='%Y%m%d'
+                    )
+
+                    # 년월만 추출하여 컬럼에 넣기
+
+                    region_1['년월'] = region_1['년월일'].apply(lambda x:x.strftime('%Y%m'))
+
+                    # 년도만 출력하여 칼럼에 넣기
+
+                    region_1['년'] = region_1['년월일'].dt.year
+
+                    # region_1에서 2018,2019,2020,2021 년 정보만 추출
+
+                    region_2018=region_1[region_1['년']==2018]
+                    region_2019=region_1[region_1['년']==2019]
+                    pre_corona_region = region_2018.append(region_2019)
+
+                    pre_corona_region
+
+                    region_2020=region_1[region_1['년']==2020]
+                    region_2021=region_1[region_1['년']==2021]
+                    post_corona_region = region_2020.append(region_2021)
+
+                    post_corona_region
+                </code></pre>
+
+                <p></p>
+                <img src="../static/images/card/region_1.png">
+                <p></p>
+
+                <p>상단의 코드를 통해 다음과 같이 업종별, 시도별, 연도별 카드이용금액을 나타내는 데이터를 생성하였다.</p>
+
+                <blockquote>연도에 따른 지역별 업종간 카드이용금액 정액 비교 막대 그래프</blockquote>
+                <pre><code>
+                    # 연도, 시도를 index, 카드이용금액을 columns로 하는 table 생성
+                    region_year = region_1.pivot_table(
+                        index=['년','시도'],
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    region_year
+
+                    # 연도, 시도를 index, 카드이용금액을 도식화
+                    tl_own_year_region=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px')
+                    ).add_schema(is_auto_play=True)
+
+                    for t in region_year.index.get_level_values(0).unique().tolist():
+                      df=region_year.loc[t]
+
+                      tl_own_year_region.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title="시도별 업종간 소비지출 비율"),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                {% include 'include/card/region_industry_exp_amount_final.html' %}
+                <p></p>
+
+                <blockquote>연도에 따른 지역별 업종간 카드이용금액 비율 비교 막대 그래프</blockquote>
+                <pre><code>
+                    reg_yr_percent=reg_yr_percent.set_index(['년','시도'])
+
+                    # 100 곱해서 퍼센트 형식
+
+                    reg_yr_percent=100*reg_yr_percent
+
+                    # 연도에 따른 지역별 업종 카드이용금액 비율을 도식화
+                    reg_by_yr=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px')
+                    ).add_schema(is_auto_play=True)
+
+                    for t in reg_yr_percent.index.get_level_values(0).unique().tolist():
+                      df=reg_yr_percent.loc[t]
+
+                      reg_by_yr.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title='코로나 전후로 시도별 업종간 소비지출 분석'),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                {% include 'include/card/region_year_exp_percent.html' %}
+                <p></p>
+
+                <blockquote>코로나 전후 지역별 업종간 카드이용금액 정액 비교 막대 그래프</blockquote>
+                <pre><code>
+                    # pre_corona_region / post_corona_region
+
+                    # 코로나 이전인 18, 19년에 대해 코로나 상황 컬럼 만들기
+                    pre_corona_region.loc[pre_corona_region['년'] == 2018, '코로나상황'] = 'pre_corona'
+                    pre_corona_region.loc[pre_corona_region['년'] == 2019, '코로나상황'] = 'pre_corona'
+                    pre_corona_region
+
+                    # 코로나 이후인 20, 21년에 대해 코로나 상황 컬럼 만들기
+                    post_corona_region.loc[post_corona_region['년'] == 2020, '코로나상황'] = 'post_corona'
+                    post_corona_region.loc[post_corona_region['년'] == 2021, '코로나상황'] = 'post_corona'
+                    post_corona_region
+
+                    # 코로나 전후 데이터 append
+                    covid_region = pre_corona_region.append(post_corona_region)
+                    covid_region
+
+                    # 코로나 상황별, 시도별을 index, 카드이용금액을 columns 로 테이블 생성
+                    region_covid=covid_region.pivot_table(
+                        index=['코로나상황','시도'],
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+                    region_covid
+
+                    # 코로나상황, 시도를 index, 업종별 카드이용금액 비율을 도식화
+                    reg_by_covid_stat=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px')
+                    ).add_schema(is_auto_play=True)
+
+                    for t in region_covid.index.get_level_values(0).unique().sort_values(ascending=False).tolist():
+                      df=region_covid.loc[t]
+
+                      reg_by_covid_stat.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title='코로나 전후로 시도별 업종간 소비지출 분석'),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                {% include 'include/card/region_corona_exp_amount.html' %}
+                <p></p>
+
+                <blockquote>분석의의</blockquote>
+                <p>이전의 통합 데이터의 결과와 마친가지로 모든 지역에서의 카드지출액이 전박적으로 감소했음을 알 수 있으며,
+                    특히 인구가 많이 분포된 경기지역의 감소가 가장 큰 폭으로 이루어졌다. 또한 대부분의 지역에서 코로나의 영향
+                    으로 인한 전자상거래 업종의 매출 증가가 눈에 띄는 결과로 관찰된다.</p>
+
+                <h2 class="major">2016 ~ 2021년 요일별 업종간 카드 지출내역 분석</h2>
+                <blockquote>요일별 업종간 카드지출내역 데이터 전처리</blockquote>
+
+                <pre><code>
+                    # 시간별 데이터 import
+
+                    time = pd.read_csv(path, encoding='ksc5601')
+
+                    # 컬럼 이름 정리하기
+
+                    time.rename({'업종대분류(UPJONG_CLASS1)':'대분류',
+                                 '기준일자(YMD)':'년월일',
+                                 '시간대구간(TIME)':'시간대구간',
+                                 '고객주소집계구별(TOT_REG_CD)':'고객주소집계구별',
+                                 '카드이용금액계(AMT_CORR)':'카드이용금액',
+                                 '카드이용건수계(USECT_CORR)':'카드이용건수'},
+                                axis=1, inplace=True)
+
+                    # 사용하지 않는 컬럼 정리하기
+
+                    time.drop(columns=['고객주소집계구별','카드이용건수'], axis=1, inplace=True)
+
+                    # 대분류 기준 업종코드랑 병합하기
+
+                    time_1 = code.merge(time, on='대분류')
+
+                    # 년월일 컬럼 datetime 으로 바꾸기
+
+                    time_1['년월일']=pd.to_datetime(
+                        time_1['년월일'],
+                        format='%Y%m%d'
+                    )
+
+                    # 년월만 출력해서 컬럼으로 지정하기
+                    time_1['년월'] = time_1['년월일'].apply(lambda x:x.strftime('%Y%m'))
+
+                    #시간대구간 정보를 시간대 컬럼에 별도로 저장한다
+                    # 1 : 00-04
+                    # 2 : 04-08
+                    # 3 : 08-12
+                    # 4 : 12-16
+                    # 5 : 16-20
+                    # 6 : 20-24
+                    time_1.loc[time_1['시간대구간'] == 1, '시간대(시)'] = '00-04'
+                    time_1.loc[time_1['시간대구간'] == 2, '시간대(시)'] = '04-08'
+                    time_1.loc[time_1['시간대구간'] == 3, '시간대(시)'] = '08-12'
+                    time_1.loc[time_1['시간대구간'] == 4, '시간대(시)'] = '12-16'
+                    time_1.loc[time_1['시간대구간'] == 5, '시간대(시)'] = '16-20'
+                    time_1.loc[time_1['시간대구간'] == 6, '시간대(시)'] = '20-24'
+
+                    # 요일 컬럼 생성
+                    time_1['요일']=time_1['년월일'].dt.day_name()
+                    time_1['년']=time_1['년월일'].dt.year
+
+                    # 연도별 데이터 추출
+                    time_2018=time_1[time_1['년']==2018]
+                    time_2019=time_1[time_1['년']==2019]
+                    time_2020=time_1[time_1['년']==2020]
+                    time_2021=time_1[time_1['년']==2021]
+
+                    # 코로나 전후 로 데이터 통합
+                    # 전
+                    pre_covid_time = time_2018.append(time_2019)
+                    # 후
+                    post_covid_time = time_2020.append(time_2021)
+                </code></pre>
+
+                <p>상단의 코드를 통해 요일별, 시간대별 데이터를 추출하는 과정을 거쳤다.</p>
+                <p></p>
+
+                <img src="../static/images/card/time_1.png">
+                <p></p>
+
+                <blockquote>연도별로 요일별 데이터를 통한 각 업종에서의 카드 지출 막대그래프 분석</blockquote>
+                <pre><code>
+                    # 연도별, 요일별 업종간 소비지출 분석
+
+                    total_day_amt=time_1.pivot_table(
+                        index=['년','요일'],
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+                    weeks=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+                    total_day_amt=total_day_amt.reindex(weeks,level='요일')
+
+                    # 연도별, 요일별 업종간 소비지출 분석 도식화
+                    total_day=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px')
+                    ).add_schema(is_auto_play=True)
+
+                    for t in total_day_amt.index.get_level_values(0).unique().tolist():
+                      df=total_day_amt.loc[t]
+
+                      total_day.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title='연도별, 요일별 업종간 소비지출 분석'),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                {% include 'include/card/total_day_final.html' %}
+                <p></p>
+
+                <blockquote>코로나 전후 요일별 각 업종에 따른 카드지출액 막대그래프 분석</blockquote>
+                <pre><code>
+                    # 코로나 이전인 18, 19년에 대해 코로나 상황 컬럼 만들기
+                    time_1.loc[time_1['년'] == 2016, '코로나상황'] = 'pre_corona'
+                    time_1.loc[time_1['년'] == 2017, '코로나상황'] = 'pre_corona'
+                    time_1.loc[time_1['년'] == 2018, '코로나상황'] = 'pre_corona'
+                    time_1.loc[time_1['년'] == 2019, '코로나상황'] = 'pre_corona'
+
+                    # 코로나 이후인 20, 21년에 대해 코로나 상황 컬럼 만들기
+                    time_1.loc[time_1['년'] == 2020, '코로나상황'] = 'post_corona'
+                    time_1.loc[time_1['년'] == 2021, '코로나상황'] = 'post_corona'
+
+                    # 코로나전후 데이터 코로나 상황별 요일별 업종에 따른 소비지출액 비교
+                    day_covid=time_1.pivot_table(
+                        index=['코로나상황','요일'],
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    weeks=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+                    day_covid=day_covid.reindex(weeks,level='요일')
+
+                    # 코로나전후 데이터 코로나 상황별 요일별 업종에 따른 소비지출액 비교 도식화
+                    covid_day=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px',
+                            )
+                    ).add_schema(is_auto_play=True)
+
+                    for t in day_covid.index.get_level_values(0).unique().sort_values(ascending=False).tolist():
+                      df=day_covid.loc[t]
+
+                      covid_day.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title='코로나 전후로 요일별 업종간 소비지출 분석'),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                {% include 'include/card/covid_day_final.html' %}
+                <p></p>
+
+                <blockquote>분석의의</blockquote>
+                <p>코로나 전후로 영업제한시간이 9시-10시 사이로 적용되면서 대부분의 식당들이 코로나 이전과는 다르게
+                    영업시간을 단축하여 영업손실을 최소화하는 방안을 선택했다. 이에 따라 자연스럽게 소비자들은 평일 직장에서 퇴근 후 시장을 가거나,
+                    유흥을 즐기는 데에 제한이 생기게 되었으며, 이는 평일 동안 영업점들의 매출과 소비자들의 지출이 급감하는 것을 코로나 전후 요일별
+                    막대 그래프를 통해 분석할 수 있다. 마찬가지로 평일의 손실을 메꾸기 위해 대부분의 영업점들이 주말영업에 중점을 두기 시작하였고,
+                    주말 시간을 이용하는 소비자들은 오히려 이전보다 주말동안의 소비, 지출이 저보다 증가하고 있음을 관찰 할 수 있다.</p>
+
+                <h2 class="major">2016 ~ 2021년 시간대별 업종간 카드 지출내역 분석</h2>
+                <blockquote>시간대별 업종간 카드 지출내역 데이터 전처리 과정</blockquote>
+                <pre><code>
+                    # 시간별 데이터 import
+
+                    time = pd.read_csv(path, encoding='ksc5601')
+
+                    # 컬럼 이름 정리하기
+
+                    time.rename({'업종대분류(UPJONG_CLASS1)':'대분류',
+                                 '기준일자(YMD)':'년월일',
+                                 '시간대구간(TIME)':'시간대구간',
+                                 '고객주소집계구별(TOT_REG_CD)':'고객주소집계구별',
+                                 '카드이용금액계(AMT_CORR)':'카드이용금액',
+                                 '카드이용건수계(USECT_CORR)':'카드이용건수'},
+                                axis=1, inplace=True)
+
+                    # 사용하지 않는 컬럼 정리하기
+
+                    time.drop(columns=['고객주소집계구별','카드이용건수'], axis=1, inplace=True)
+
+                    # 대분류 기준 업종코드랑 병합하기
+
+                    time_1 = code.merge(time, on='대분류')
+
+                    # 년월일 컬럼 datetime 으로 바꾸기
+
+                    time_1['년월일']=pd.to_datetime(
+                        time_1['년월일'],
+                        format='%Y%m%d'
+                    )
+
+                    # 년월만 출력해서 컬럼으로 지정하기
+                    time_1['년월'] = time_1['년월일'].apply(lambda x:x.strftime('%Y%m'))
+
+                    #시간대구간 정보를 시간대 컬럼에 별도로 저장한다
+                    # 1 : 00-04
+                    # 2 : 04-08
+                    # 3 : 08-12
+                    # 4 : 12-16
+                    # 5 : 16-20
+                    # 6 : 20-24
+                    time_1.loc[time_1['시간대구간'] == 1, '시간대(시)'] = '00-04'
+                    time_1.loc[time_1['시간대구간'] == 2, '시간대(시)'] = '04-08'
+                    time_1.loc[time_1['시간대구간'] == 3, '시간대(시)'] = '08-12'
+                    time_1.loc[time_1['시간대구간'] == 4, '시간대(시)'] = '12-16'
+                    time_1.loc[time_1['시간대구간'] == 5, '시간대(시)'] = '16-20'
+                    time_1.loc[time_1['시간대구간'] == 6, '시간대(시)'] = '20-24'
+
+                    # 요일 컬럼 생성
+                    time_1['요일']=time_1['년월일'].dt.day_name()
+                    time_1['년']=time_1['년월일'].dt.year
+
+                    # 연도별 데이터 추출
+                    time_2018=time_1[time_1['년']==2018]
+                    time_2019=time_1[time_1['년']==2019]
+                    time_2020=time_1[time_1['년']==2020]
+                    time_2021=time_1[time_1['년']==2021]
+
+                    # 코로나 전후 로 데이터 통합
+                    # 전
+                    pre_covid_time = time_2018.append(time_2019)
+                    # 후
+                    post_covid_time = time_2020.append(time_2021)
+                </code></pre>
+
+                <p></p>
+
+                <p>상단의 코드를 통해 주어진 시간대 코드를 6분류로 나누어 기준을 정했고, 이를 바탕으로 시간에 따른 각 업종별 카드지출
+                    데이터를 추출하였다.</p>
+
+                <blockquote>시간대별 각 업종의 카드지출액 막대 그래프 분석</blockquote>
+                <pre><code>
+                    # 전체 연도 데이터 연도별 시간대별 업종에 따른 소비지출액 비교
+                    total_time_amt=time_1.pivot_table(
+                        index=['년','시간대(시)'],
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    total_time_amt
+
+                    # 전체 연도 데이터 연도별 시간대별 업종에 따른 소비지출액 비교 도식화
+                    total_time=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px')
+                    ).add_schema(is_auto_play=True)
+
+                    for t in total_time_amt.index.get_level_values(0).unique().tolist():
+                      df=total_time_amt.loc[t]
+
+                      total_time.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title='연도별, 시간대별 업종간 소비지출 분석'),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                {% include 'include/card/total_time_final.html' %}
+                <p></p>
+
+                <blockquote>코로나 전후의 시간대별 업종들의 소비지출액 막대그래프 분석</blockquote>
+
+                <pre><code>
+                    # 코로나 이전인 18, 19년에 대해 코로나 상황 컬럼 만들기
+                    time_1.loc[time_1['년'] == 2016, '코로나상황'] = 'pre_corona'
+                    time_1.loc[time_1['년'] == 2017, '코로나상황'] = 'pre_corona'
+                    time_1.loc[time_1['년'] == 2018, '코로나상황'] = 'pre_corona'
+                    time_1.loc[time_1['년'] == 2019, '코로나상황'] = 'pre_corona'
+
+                    # 코로나 이후인 20, 21년에 대해 코로나 상황 컬럼 만들기
+                    time_1.loc[time_1['년'] == 2020, '코로나상황'] = 'post_corona'
+                    time_1.loc[time_1['년'] == 2021, '코로나상황'] = 'post_corona'
+
+                    # 코로나 상황별, 시간대별을 index, 카드이용금액을 columns 로 테이블 생성
+                    time_covid=time_1.pivot_table(
+                        index=['코로나상황','시간대(시)'],
+                        columns='대분류',
+                        values='카드이용금액',
+                        aggfunc='sum'
+                    ).fillna(0)
+
+                    # 코로나전후 데이터 코로나 상황별 시간대별 업종에 따른 소비지출액 비교 도식화
+                    covid_time=Timeline(
+                        init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS,
+                            height='600px',
+                            width='800px',
+                            )
+                    ).add_schema(is_auto_play=True)
+
+                    for t in time_covid.index.get_level_values(0).unique().sort_values(ascending=False).tolist():
+                      df=time_covid.loc[t]
+
+                      covid_time.add((Bar(
+                          init_opts=opts.InitOpts(
+                            theme=ThemeType.WESTEROS)
+                      ).add_xaxis(df.index.tolist())
+                      .add_yaxis('가전/가구',df['가전/가구'].tolist(),stack="stack1")
+                      .add_yaxis('가정생활/서비스',df['가정생활/서비스'].tolist(),stack="stack1")
+                      .add_yaxis('교육/학원',df['교육/학원'].tolist(),stack="stack1")
+                      .add_yaxis('미용',df['미용'].tolist(),stack="stack1")
+                      .add_yaxis('스포츠/문화/레저',df['스포츠/문화/레저'].tolist(),stack="stack1")
+                      .add_yaxis('여행/교통',df['여행/교통'].tolist(),stack="stack1")
+                      .add_yaxis('요식/유흥',df['요식/유흥'].tolist(),stack="stack1")
+                      .add_yaxis('유통',df['유통'].tolist(),stack="stack1")
+                      .add_yaxis('음/식료품',df['음/식료품'].tolist(),stack="stack1")
+                      .add_yaxis('의료',df['의료'].tolist(),stack="stack1")
+                      .add_yaxis('의류/잡화',df['의류/잡화'].tolist(),stack="stack1")
+                      .add_yaxis('자동차',df['자동차'].tolist(),stack="stack1")
+                      .add_yaxis('전자상거래',df['전자상거래'].tolist(),stack="stack1")
+                      .add_yaxis('주유',df['주유'].tolist(),stack="stack1")
+                      .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+                      .set_global_opts(title_opts=opts.TitleOpts(title='코로나 전후로 시간대별 업종간 소비지출 분석'),
+                                         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+                                         legend_opts=opts.LegendOpts(type_ = 'scroll',
+                                                                     pos_left="65%", pos_bottom='79%', orient='verticle',legend_icon ='pin')))
+                      ,"{}년도".format(t))
+                </code></pre>
+
+                <p></p>
+                {% include 'include/card/covid_time_final.html' %}
+                <p></p>
+
+                <blockquote>분석의의</blockquote>
+                <p>코로나의 발병으로 인행 역시나 다른 분야와 동일하게 전체 시간대에서 카드소비, 지출이 감소했음을 볼 수 있다. 특히 오후와 저녁, 그리고 24시간
+                    영업이나 심야영업을 주로 하는 유흥업소들에 대한 소비지출이 매우 감소하였다. 이러한 결과도 바로 코로나로 확산방지를 위해 시행된 영업시간 단축과 단체 모임 인원
+                    제한 정책의 영향을 받았다고 볼 수 있을 것이다.</p>
+
 
                 <h3 class="major">출처</h3>
-                <p>Cras mattis ante fermentum, malesuada neque vitae, eleifend erat. Phasellus non pulvinar erat. Fusce
-                    tincidunt, nisl eget mattis egestas, purus ipsum consequat orci, sit amet lobortis lorem lacus in
-                    tellus. Sed ac elementum arcu. Quisque placerat auctor laoreet.</p>
-
-                <section class="features">
-                    <article>
-                        <a href="#" class="image"><img src="../static/images/Echarts.png" alt=""/></a>
-                        <h3 class="major">Pyecharts</h3>
-                        <p>Echarts는 아파치 라이선스로 사용하기 쉽고, 대화식이며, 성능이 뛰어난 자바스크립트 시각화 라이브러리입니다. 여기에 표현력이 뛰어난 파이썬 언어의 강점을 결합해
-                            파이차트가 만들어졌으며 이번 프로젝트의 그래프는 pyecharts로 표현하였습니다.</p>
-                        <a href="https://pyecharts.org/#/en-us/" class="special">Pyecharts</a>
-                    </article>
-                    <article>
-                        <a href="#" class="image"><img src="../static/images/pic04.jpg" alt=""/></a>
-                        <h3 class="major">데이터</h3>
-                        <p>고용노동부와 교육통계서비스의 데이터를 사용했습니다. </p>
-                        <a href="http://www.index.go.kr/potal/main/EachDtlPageDetail.do?idx_cd=1505" class="special">e-나라지표</a>
-                        <a href="https://kess.kedi.re.kr/contents/dataset?itemCode=04&menuId=m_02_04_03_02&tabId=m3"
-                           class="special">교육통계서비스</a>
-                    </article>
-                </section>
-
+                <a href="https://www.data.go.kr/index.do" class="special">공공데이터포털</a>
+                <a href="https://bigdata.seoul.go.kr/main.do" class="special">서울시 빅데이터 캠퍼스</a>
+                <a href="https://www.findatamall.or.kr/fsec/main/main.do?cmnx=1" class="special">금융데이터거래소</a>
+                <a href="https://dacon.io" class="special">DACON</a>
             </div>
         </div>
 
@@ -87,12 +1047,7 @@
 </div>
 
 <!-- Scripts -->
-<script src="../static/assets/js/jquery.min.js"></script>
-<script src="../static/assets/js/jquery.scrollex.min.js"></script>
-<script src="../static/assets/js/browser.min.js"></script>
-<script src="../static/assets/js/breakpoints.min.js"></script>
-<script src="../static/assets/js/util.js"></script>
-<script src="../static/assets/js/main.js"></script>
+{% include 'include/script.html' %}
 
 </body>
 </html>

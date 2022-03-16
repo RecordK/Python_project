@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+            <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+        <script type="text/javascript" src="https://assets.pyecharts.org/assets/themes/westeros.js"></script>
+
+</head>
+<body>
+    <div id="a25ffa2aa3664f4982e6eb13e870253f" class="chart-container" style="width:900px; height:500px;"></div>
+    <script>
+        var chart_a25ffa2aa3664f4982e6eb13e870253f = echarts.init(
+            document.getElementById('a25ffa2aa3664f4982e6eb13e870253f'), 'westeros', {renderer: 'canvas'});
+        var option_a25ffa2aa3664f4982e6eb13e870253f = {
+    "animation": true,
+    "animationThreshold": 2000,
+    "animationDuration": 1000,
+    "animationEasing": "elasticOut",
+    "animationDelay": 1000,
+    "animationDurationUpdate": 300,
+    "animationEasingUpdate": "cubicOut",
+    "animationDelayUpdate": 0,
+    "series": [
+        {
+            "type": "bar",
+            "name": "PRE-COVID",
+            "legendHoverLink": true,
+            "data": [
+                19626.0,
+                7910.0,
+                46316.0,
+                1370.0,
+                4165.0,
+                16456.0,
+                5152.0,
+                1873.0,
+                12175.0,
+                7388.0,
+                1977.0,
+                2560.0,
+                29896.0,
+                3128.0,
+                12541.0,
+                11619.0,
+                4762.0,
+                4717.0,
+                2008.0,
+                14195.0,
+                1850.0,
+                10022.0,
+                4214.0,
+                8762.0,
+                5958.0,
+                7807.0,
+                14538.0,
+                3288.0,
+                4442.0,
+                1666.0,
+                20417.0,
+                20285.0,
+                4662.0,
+                1416.0,
+                3810.0
+            ],
+            "showBackground": false,
+            "barMinHeight": 0,
+            "barCategoryGap": "20%",
+            "barGap": "30%",
+            "large": false,
+            "largeThreshold": 400,
+            "seriesLayoutBy": "column",
+            "datasetIndex": 0,
+            "clip": true,
+            "zlevel": 0,
+            "z": 2,
+            "label": {
+                "show": true,
+                "position": "top",
+                "margin": 8
+            }
+        },
+        {
+            "type": "bar",
+            "name": "POST-COVID",
+            "legendHoverLink": true,
+            "data": [
+                19602.0,
+                7760.0,
+                42139.0,
+                1394.0,
+                4289.0,
+                16174.0,
+                5355.0,
+                1900.0,
+                11755.0,
+                6999.0,
+                1922.0,
+                2407.0,
+                28076.0,
+                2984.0,
+                12538.0,
+                10781.0,
+                4649.0,
+                4648.0,
+                2030.0,
+                12652.0,
+                1772.0,
+                9135.0,
+                3878.0,
+                8411.0,
+                5641.0,
+                7720.0,
+                14146.0,
+                3231.0,
+                4582.0,
+                1586.0,
+                20027.0,
+                20021.0,
+                5024.0,
+                1434.0,
+                3756.0
+            ],
+            "showBackground": false,
+            "barMinHeight": 0,
+            "barCategoryGap": "20%",
+            "barGap": "30%",
+            "large": false,
+            "largeThreshold": 400,
+            "seriesLayoutBy": "column",
+            "datasetIndex": 0,
+            "clip": true,
+            "zlevel": 0,
+            "z": 2,
+            "label": {
+                "show": true,
+                "position": "top",
+                "margin": 8
+            }
+        }
+    ],
+    "legend": [
+        {
+            "data": [
+                "PRE-COVID",
+                "POST-COVID"
+            ],
+            "selected": {
+                "PRE-COVID": true,
+                "POST-COVID": true
+            },
+            "show": true,
+            "left": "40%",
+            "padding": 5,
+            "itemGap": 10,
+            "itemWidth": 25,
+            "itemHeight": 14,
+            "icon": "pin"
+        }
+    ],
+    "tooltip": {
+        "show": true,
+        "trigger": "axis",
+        "triggerOn": "mousemove|click",
+        "axisPointer": {
+            "type": "cross"
+        },
+        "showContent": true,
+        "alwaysShowContent": false,
+        "showDelay": 0,
+        "hideDelay": 100,
+        "textStyle": {
+            "fontSize": 14
+        },
+        "borderWidth": 0,
+        "padding": 5
+    },
+    "xAxis": [
+        {
+            "name": "\ud559\uacfc",
+            "show": true,
+            "scale": false,
+            "nameLocation": "end",
+            "nameGap": 15,
+            "gridIndex": 0,
+            "axisLabel": {
+                "show": true,
+                "position": "top",
+                "rotate": 0,
+                "margin": 8
+            },
+            "inverse": false,
+            "offset": 0,
+            "splitNumber": 5,
+            "minInterval": 0,
+            "splitLine": {
+                "show": false,
+                "lineStyle": {
+                    "show": true,
+                    "width": 1,
+                    "opacity": 1,
+                    "curveness": 0,
+                    "type": "solid"
+                }
+            },
+            "data": [
+                "\uac04\ud638",
+                "\uac74\ucd95",
+                "\uacbd\uc601\u318d\uacbd\uc81c",
+                "\uad50\uc721\uc77c\ubc18",
+                "\uad50\ud1b5\u318d\uc6b4\uc1a1",
+                "\uae30\uacc4\u318d\uae08\uc18d",
+                "\uae30\ud0c0",
+                "\ub18d\ub9bc\u318d\uc218\uc0b0",
+                "\ub514\uc790\uc778",
+                "\ubb34\uc6a9\u318d\uccb4\uc721",
+                "\ubbf8\uc220\u318d\uc870\ud615",
+                "\ubc95\ub960",
+                "\uc0ac\ud68c\uacfc\ud559",
+                "\uc0b0\uc5c5",
+                "\uc0dd\ubb3c\u318d\ud654\ud559\u318d\ud658\uacbd",
+                "\uc0dd\ud65c\uacfc\ud559",
+                "\uc18c\uc7ac\u318d\uc7ac\ub8cc",
+                "\uc218\ud559\u318d\ubb3c\ub9ac\u318d\ucc9c\ubb38\u318d\uc9c0\ub9ac",
+                "\uc57d\ud559",
+                "\uc5b8\uc5b4\u318d\ubb38\ud559",
+                "\uc5f0\uadf9\u318d\uc601\ud654",
+                "\uc720\uc544\uad50\uc721",
+                "\uc74c\uc545",
+                "\uc751\uc6a9\uc608\uc220",
+                "\uc758\ub8cc",
+                "\uc778\ubb38\uacfc\ud559",
+                "\uc804\uae30\u318d\uc804\uc790",
+                "\uc815\ubc00\u318d\uc5d0\ub108\uc9c0",
+                "\uc911\ub4f1\uad50\uc721",
+                "\ucd08\ub4f1\uad50\uc721",
+                "\uce58\ub8cc\u318d\ubcf4\uac74",
+                "\ucef4\ud4e8\ud130\u318d\ud1b5\uc2e0",
+                "\ud1a0\ubaa9\u318d\ub3c4\uc2dc",
+                "\ud2b9\uc218\uad50\uc721",
+                "\ud654\uacf5"
+            ]
+        }
+    ],
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "\uba85 \uc218",
+            "show": true,
+            "scale": false,
+            "nameLocation": "center",
+            "nameGap": 15,
+            "gridIndex": 0,
+            "inverse": false,
+            "offset": 0,
+            "splitNumber": 5,
+            "minInterval": 0,
+            "splitLine": {
+                "show": false,
+                "lineStyle": {
+                    "show": true,
+                    "width": 1,
+                    "opacity": 1,
+                    "curveness": 0,
+                    "type": "solid"
+                }
+            }
+        }
+    ],
+    "title": [
+        {
+            "text": "\ud559\uacfc\ubcc4 \ucde8\uc5c5\uc778\uc6d0",
+            "subtext": "\ucee4\uc11c\uc640 \uc2a4\ud06c\ub864\uc744 \uc870\uc808\ud574 \uc6d0\ud558\ub294 \uc815\ubcf4\ub97c \ud655\uc778\ud574\ubcf4\uc138\uc694!",
+            "padding": 5,
+            "itemGap": 10
+        }
+    ]
+};
+        chart_a25ffa2aa3664f4982e6eb13e870253f.setOption(option_a25ffa2aa3664f4982e6eb13e870253f);
+    </script>
+</body>
+</html>

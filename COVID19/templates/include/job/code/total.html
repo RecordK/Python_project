@@ -1,0 +1,150 @@
+<blockquote>
+                        <h3>현재 취업 현황 데이터 전처리</h3>
+                    </blockquote>
+                    <p>하단의 코드는 데이터 전처리 과정의 코드입니다. 20개년의 데이터가 방대하다보니
+                        이중 for문과 동적 변수를 사용하여 코드의 양을 줄였고 <code>thousands=','</code>의
+                        코드가 작동되지 않아 <code>str.replace()</code>의 함수를 사용하여 데이터를
+                        변경하였습니다.</p>
+                    <pre><code>getJ=getJ.iloc[1:7][:]
+name=['구분']
+for i in range(2,22):
+  for j in range(1,13):
+    name.append('20{0:02d}'.format(i)+'{0:02d}'.format(j)+'01')
+getJ.iloc[0]=name
+
+# index 설정
+getJ.index=getJ.iloc[:,0]
+
+# 1열 삭제
+getJ=getJ.drop('통계표명:',axis=1)
+
+# 날짜 변환
+getJ.iloc[0]=pd.to_datetime(getJ.iloc[0])
+getJ.iloc[0] = getJ.iloc[0].apply(lambda x:x.strftime('%Y%m'))
+getJ.index.name=''
+
+# 1행 컬럼으로 바꾸기
+getJ.columns=getJ.iloc[0]
+
+#년도 행 삭제
+getJ=getJ.drop('구분')
+getJ_1=getJ.iloc[[0,1,3,4]]
+getJ1=copy.deepcopy(getJ_1)
+for i in range(len(getJ1.index)-1):
+  getJ1.iloc[i]=getJ1.iloc[i].str.replace(',','').astype(int)
+for i in range(2,22):
+  globals()['getJ20{0:02d}'.format(i)]=getJ1.loc[:,'20{0:02d}01'.format(i):'20{0:02d}12'.format(i)]</code></pre>
+
+                    <section>
+                        <h4>table</h4>
+                        <div class="box alt">
+                            <div class="row gtr-uniform">
+                                <div class="col-12"><span class="image fit"><img
+                                        src="../../static/images/job/get_table.png"
+                                        alt=""/></span></div>
+                            </div>
+                        </div>
+                    </section>
+                    <blockquote>
+                        <h3>현재 취업 현황 시각화</h3>
+                    </blockquote>
+                    <p>COVID19 추세 그래프와 마찬가지로 pyecharts 라이브러리를 사용하여 시각화하였습니다.</p>
+                    <pre><code># 전체 꺾은선 그래프
+
+## 꺾은 선 그래프
+attr = getJ1.columns.tolist()
+total_job_rate = Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS
+                                                              ,animation_opts=opts.AnimationOpts(animation_delay=1000
+                                                                                                  , animation_easing="elasticOut")))
+total_job_rate.add_xaxis(attr).add_xaxis(attr).add_yaxis('취업률',getJ1.T['취업률'])
+
+## 추가 꺾은선
+total_job_info = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                ))).set_global_opts(
+    title_opts=opts.TitleOpts(
+        title="취업률 추세",subtitle="커서와 스크롤을 조절해 원하는 정보를 확인해보세요!"),
+        yaxis_opts=opts.AxisOpts(name = "취업률 %",name_location="center",type_="value"),
+        xaxis_opts=opts.AxisOpts(name='날짜',axislabel_opts=opts.LabelOpts(rotate=0)),
+        datazoom_opts=[opts.DataZoomOpts(), opts.DataZoomOpts(type_="inside")],
+        legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+        tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+        ).set_series_opts(label_opts=opts.LabelOpts(is_show=True)).add_xaxis(attr
+                                                                             ).add_yaxis('구인',getJ1.T['구인'].tolist(),yaxis_index=1
+                                                                             ).add_yaxis('구직',getJ1.T['구직'].tolist(),yaxis_index=1
+                                                                             ).add_yaxis('취업자수',getJ1.T['취업자수'].tolist(),yaxis_index=1
+                                                                             ).extend_axis(yaxis=opts.AxisOpts(type_="value", name = "명 수", position="right",name_location="center"))
+
+## 합치기
+total_job_info=total_job_info.overlap(total_job_rate)
+
+# COVID 전 후 2개년 꺾은 선
+# 전처리 위한 deepcopy
+for i in range(18,22):
+  globals()['getJ{}'.format(i)]=copy.deepcopy(globals()['getJ20{}'.format(i)])
+
+# 타입 바꾸기
+for i in range(18,22):
+  globals()['getJ{}'.format(i)].iloc[3]=globals()['getJ{}'.format(i)].iloc[3].astype(float)
+
+# 월로 바꾸기
+col=['{0:02d}'.format(i) for i in range(1,13)]
+getJ18.columns=getJ19.columns=getJ20.columns=getJ21.columns=col
+getJ89=(getJ18.add(getJ19))/2
+getJ01=(getJ20.add(getJ21))/2
+
+# COVID 전 후 2개년 평균 취업률 추세
+res=[getJ89,getJ01]
+year=['PRE-COVID','POST_COVID']
+
+for x,y in enumerate(res):
+    l=[round(i,2) for i in y.T['취업률']]
+    attr = y.columns.tolist()
+    globals()['line_{}'.format(x)] = Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS
+                                                                  ,animation_opts=opts.AnimationOpts(animation_delay=1000
+                                                                                                     , animation_easing="elasticOut")))
+    globals()['line_{}'.format(x)].add_xaxis(attr).set_global_opts(
+        title_opts=opts.TitleOpts(
+            title="취업률 추세",subtitle="마우스를 상세 정보를 확인해보세요!"),
+            yaxis_opts=opts.AxisOpts( name = "취업률 %",name_location="center",type_="value",is_scale=True),
+            xaxis_opts=opts.AxisOpts(name = "월",name_location="end",axislabel_opts=opts.LabelOpts(rotate=0)),
+
+            legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+            tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")).set_series_opts(
+                label_opts=opts.LabelOpts(is_show=False))
+
+
+    globals()['line_{}'.format(x)].overlap(Line(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_xaxis(attr).add_yaxis(year[x],l))
+line_0=line_0.overlap(line_1)
+
+# 연도별 취업현황
+job_info_by_year = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for i in range(2,22):
+  attr = globals()['getJ20{0:02d}'.format(i)].columns.tolist()
+  ##막대그래프
+  job_info_by_year_line = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                  animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                  )).add_xaxis(attr).add_yaxis('취업률 %',globals()['getJ20{0:02d}'.format(i)].T['취업률']))
+  ## 꺾은선
+  job_info_by_year.add((Bar(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                                             animation_opts=opts.AnimationOpts(
+                                                 animation_delay=1000, animation_easing="elasticOut"
+                                                 ))).add_xaxis(attr
+                                                               ).set_global_opts(
+                                                                   title_opts=opts.TitleOpts(title='20{0:02d}년 취업현황'.format(i),subtitle="마우스를 올려 정확한 수치를 확인해보세요!"),
+                                                                   yaxis_opts=opts.AxisOpts(min_='Datamin', name = "취업률 %",name_location="center",type_="value",is_scale=True),
+                                                                   xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=0)),
+                                                                   legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+                                                                   tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+                                                                   ).set_series_opts(
+                                                                       label_opts=opts.LabelOpts(is_show=False))).overlap(Bar(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)
+                                                                       ).add_xaxis(attr)
+                                                                       .add_yaxis('구인',globals()['getJ20{0:02d}'.format(i)].T['구인'].tolist(),yaxis_index=1)
+                                                                       .add_yaxis('구직',globals()['getJ20{0:02d}'.format(i)].T['구직'].tolist(),yaxis_index=1)
+                                                                       .add_yaxis('취업자수',globals()['getJ20{0:02d}'.format(i)].T['취업자수'].tolist(),yaxis_index=1))
+                                                                       .extend_axis(yaxis=opts.AxisOpts(type_="value", name = "명 수", position="right",name_location="center"))
+                                                                       .overlap(job_info_by_year_line),'20{0:02d}년'.format(i))</code></pre>

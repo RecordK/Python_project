@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+    <title>장르 분석</title>
+    {% include 'include/default1.html' %}
+</head>
+<body class="is-preload">
+
+<!-- Page Wrapper -->
+<div id="page-wrapper">
+
+    <!-- Header -->
+    {% include 'include/header.html' %}
+
+    <!-- Menu -->
+    {% include 'include/menu.html' %}
+
+    <!-- Wrapper -->
+    <section id="wrapper">
+        <header>
+            <div class="inner">
+                <h2>예측 되는 감정</h2>
+                <h3>{{level}} </h3>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="wrapper">
+            <div class="inner">
+
+
+                <h2 class="major">출처</h2>
+                <p>naver</p>
+
+                <section class="features">
+                    <article>
+                        <a href="#" class="image"><img src="../static/images/data.jpg" alt=""/></a>
+                        <h3 class="major">데이터</h3>
+                        <p> naver를 이용했습니다. </p>
+                          <a href="https://movie.naver.com/movie/point/af/list.naver?st=mcode&sword=190991&target=after" class="special">네이버</a>
+                    </article>
+                </section>
+
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    {% include 'include/footer.html' %}
+
+</div>
+
+<!-- Scripts -->
+{% include 'include/script.html' %}
+
+</body>
+</html>

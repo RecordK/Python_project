@@ -1,0 +1,136 @@
+<blockquote>
+                        <h3>데이터 수집</h3>
+                    </blockquote>
+                    <p>데이터 수집은 보건복지부에서 제공하는 COVID19 감염현황에 대한 OPEN-API 서비스를 이용하였고 공공데이터 포털에서 인증키를 받아 데이터 수집하였습니다.
+                        수집된 데이터는 20년 1월 19일 국내 최초확진자가 발생한 이후부터 22년 2월 28일까지의 데이터이며 <code>requests</code>와 <code>xmltodict</code>
+                        라이브러리를 사용하였습니다.
+                    </p>
+                    <pre><code># api를 이용한 수집
+                        # 20년 데이터
+serviceKey='인증키'
+pageNo='1'
+numOfRows='10'
+startCreateDt='20200101'
+endCreateDt='20201231'
+url ='http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson'
+url=url+'?serviceKey='+serviceKey+"&pageNo="+pageNo+"&numOfRows=" +numOfRows+ "&startCreateDt="+startCreateDt + "&endCreateDt=" + endCreateDt
+req=requests.get(url).text
+xmlObject=xmltodict.parse(req)
+dict_data=xmlObject['response']['body']['items']['item']
+df=pd.DataFrame(dict_data)
+
+# 21년 데이터
+startCreateDt='20210101'
+endCreateDt='20211231'
+url ='http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson'
+url=url+'?serviceKey='+serviceKey+"&pageNo="+pageNo+"&numOfRows=" +numOfRows+ "&startCreateDt="+startCreateDt + "&endCreateDt=" + endCreateDt
+req=requests.get(url).text
+xmlObject=xmltodict.parse(req)
+dict_data=xmlObject['response']['body']['items']['item']
+df2=pd.DataFrame(dict_data)
+
+# 22년 데이터
+startCreateDt='20220101'
+endCreateDt='20220228'
+url ='http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson'
+url=url+'?serviceKey='+serviceKey+"&pageNo="+pageNo+"&numOfRows=" +numOfRows+ "&startCreateDt="+startCreateDt + "&endCreateDt=" + endCreateDt
+req=requests.get(url).text
+xmlObject=xmltodict.parse(req)
+dict_data=xmlObject['response']['body']['items']['item']
+d=pd.DataFrame(dict_data)</code></pre>
+
+                    <blockquote>
+                        <h3>데이터 전처리</h3>
+                    </blockquote>
+                    <pre><code>d = d.astype({'decideCnt' : 'int', 'deathCnt' : 'int'})
+# 중복 일자 제거
+d = d.drop_duplicates(['stateDt'])
+d['날짜']=d['stateDt']
+
+# 날짜 형식으로 변환
+d['날짜'] = pd.to_datetime(d['날짜'])
+d['날짜'] = d['날짜'].apply(lambda x:x.strftime('%m-%d'))
+df_ = d[['날짜','decideCnt','deathCnt']]
+
+# 날짜정렬
+df_ = df_.sort_values(by='날짜')
+
+# 하루 확진자 및 사망자
+df_['하루확진자'] = df_['decideCnt'].diff()
+df_['하루사망자'] = df_['deathCnt'].diff()
+df_=df_.fillna(0)
+
+# 타입 변환
+df_2022=df_.astype({'하루확진자' : 'int'})
+df_2022=df_2022.astype({'하루사망자' : 'int'})
+df_2022.columns=['날짜','확진자','사망자','하루확진자','하루사망자']
+df_2022.index=df_2022['날짜']
+df_2022=df_2022.drop('날짜',axis=1)
+
+# 첫 날 사망자 및 확진자
+df_2022.iloc[0][2]=df_2022.iloc[0][0]-df_2021.iloc[-1][0]
+df_2022.iloc[0][3]=df_2022.iloc[0][1]-df_2021.iloc[-1][1]
+
+# 구분
+d2020=df_2020[['확진자','사망자','하루확진자','하루사망자']]
+d2020.columns=['2020','2020','2020','2020']
+dec2020=d2020.iloc[:, [0]]
+dea2020=d2020.iloc[:, [1]]
+dadec2020=d2020.iloc[:, [2]]
+dadea2020=d2020.iloc[:, [3]]
+dec2020
+
+# 합치기
+dadec=pd.merge(dadec2020, dadec2021, left_index=True, right_index=True, how='outer')
+dadec=pd.merge(dadec, dadec2022, left_index=True, right_index=True, how='outer')
+dadec=dadec.fillna(0)
+dadec=dadec.astype(int)
+dadec
+
+</code></pre>
+                    <section>
+                        <h4>table</h4>
+                        <div class="box alt">
+                            <div class="row gtr-uniform">
+                                <div class="col-4"><span class="image fit"><img
+                                        src="../../static/images/job/covid_table1.png"
+                                        alt=""/></span></div>
+                                <div class="col-4"><span class="image fit"><img
+                                        src="../../static/images/job/covid_table2.png"
+                                        alt=""/></span></div>
+                                <div class="col-4"><span class="image fit"><img
+                                        src="../../static/images/job/covid_table3.png"
+                                        alt=""/></span></div>
+                            </div>
+                        </div>
+                    </section>
+                    <blockquote>
+                        <h3>시각화</h3>
+                    </blockquote>
+                    <pre><code>cate = ['하루 확진자','확진자', '하루 사망자','사망자',]
+res=[dadec,dec,dadea,dea]
+tab_COV1_COV2 = Tab()
+
+# 하루 확진자
+i=0
+for x in res:
+    attr = x.index.tolist()
+    globals()['line_{}'.format(x)] = Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS
+                                                                  ,animation_opts=opts.AnimationOpts(animation_delay=1000
+                                                                                                     , animation_easing="elasticOut")))
+    globals()['line_{}'.format(x)].add_xaxis(attr).set_global_opts(
+        title_opts=opts.TitleOpts(
+            title="하루 확진자",subtitle="커서와 스크롤을 조절해 원하는 정보를 확인해보세요!"),
+            yaxis_opts=opts.AxisOpts(min_='Datamin', name = "확진자 수",name_location="center",type_="value",is_scale=True),
+            xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=0)),
+            datazoom_opts=[opts.DataZoomOpts(), opts.DataZoomOpts(type_="inside")],
+            legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+            tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")).set_series_opts(
+                label_opts=opts.LabelOpts(is_show=False))
+
+    for col in x.columns:
+        globals()['line_{}'.format(x)].overlap(Line(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_xaxis(attr).add_yaxis(col,x[col]))
+    tab_COV1_COV2.add(globals()['line_{}'.format(x)], cate[i])
+    i+=1
+
+tab_COV1_COV2.render('covid19.html')</code></pre>

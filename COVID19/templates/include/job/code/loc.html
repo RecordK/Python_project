@@ -1,0 +1,161 @@
+<blockquote>
+                        <h3>지역별 취업 현황 전처리</h3>
+                    </blockquote>
+                    <pre><code># deepcopy
+loc0221_1=copy.deepcopy(loc0221).iloc[1:20]
+l=loc0221_1['통계표명:'].to_frame()
+loc0221_1.drop('통계표명:',axis=1,inplace=True)
+
+
+# 날짜 변환
+names=[]
+name=[]
+for i in range(2,22):
+  for k in range(1,5):
+    name.append('20{0:02d}'.format(i)+'01'+'{0:02d}'.format(k))
+name=pd.to_datetime(name)
+loc0221_1.iloc[0]=name
+loc0221_1.iloc[0] = loc0221_1.iloc[0].apply(lambda x:x.strftime('%Y'))
+
+
+# index 설정
+loc0221_1.index=l.iloc[:,0]
+loc0221_1.columns=loc0221_1.iloc[0]
+
+
+
+# 1행 제거
+loc0221_1=loc0221_1.iloc[1:]
+# 이름 설정
+loc0221_1.index.name='구분'
+loc0221_1.columns.name='년도'
+# 쉼표 제거
+for i in range(1,18):
+  loc0221_1.iloc[i]=loc0221_1.iloc[i].str.replace(',','').str.replace('-','0').astype(int)
+# 멀티 columns
+loc0221_1.columns=[loc0221_1.columns.tolist(),loc0221_1.iloc[0].tolist()]
+
+
+# 1행 삭제
+loc0221_1=loc0221_1.iloc[1:]
+
+# 전처리 위한 딥카피
+loc_total=copy.deepcopy(loc0221_1)
+
+
+# 취업률
+loc_total_rate=loc_total[loc_total.columns.get_level_values(0).unique().tolist()[0],'취업률'].to_frame()
+for i in range(1,20):
+  loc_total_rate=pd.concat([loc_total_rate,loc_total[loc_total.columns.get_level_values(0).unique().tolist()[i],'취업률'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'0101' for i in range(2,22)]
+
+
+loc_total_rate=loc_total_rate.T
+loc_total_rate['날짜']=pd.to_datetime(col)
+loc_total_rate['날짜'] = loc_total_rate['날짜'].apply(lambda x:x.strftime('%Y'))
+loc_total_rate.index=loc_total_rate['날짜']
+loc_total_rate.drop('날짜',axis=1,inplace=True)
+
+
+# 구인인원
+loc_total_look_p=loc_total[loc_total.columns.get_level_values(0).unique().tolist()[0],'신규구인인원'].to_frame()
+for i in range(1,20):
+  loc_total_look_p=pd.concat([loc_total_look_p,loc_total[loc_total.columns.get_level_values(0).unique().tolist()[i],'신규구인인원'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'0101' for i in range(2,22)]
+loc_total_look_p=loc_total_look_p.T
+loc_total_look_p['날짜']=pd.to_datetime(col)
+loc_total_look_p['날짜'] = loc_total_look_p['날짜'].apply(lambda x:x.strftime('%Y'))
+loc_total_look_p.index=loc_total_look_p['날짜']
+loc_total_look_p.drop('날짜',axis=1,inplace=True)
+
+# 구직인원
+loc_total_look_j=loc_total[loc_total.columns.get_level_values(0).unique().tolist()[0],'신규구직건수'].to_frame()
+for i in range(1,20):
+  loc_total_look_j=pd.concat([loc_total_look_j,loc_total[loc_total.columns.get_level_values(0).unique().tolist()[i],'신규구직건수'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'0101' for i in range(2,22)]
+loc_total_look_j=loc_total_look_j.T
+loc_total_look_j['날짜']=pd.to_datetime(col)
+loc_total_look_j['날짜'] = loc_total_look_j['날짜'].apply(lambda x:x.strftime('%Y'))
+loc_total_look_j.index=loc_total_look_j['날짜']
+loc_total_look_j.drop('날짜',axis=1,inplace=True)</code></pre>
+                    <section>
+                        <h4>table</h4>
+                        <div class="box alt">
+                            <div class="row gtr-uniform">
+                                <div class="col-12"><span class="image fit"><img
+                                        src="../../static/images/job/loc_table.png"
+                                        alt=""/></span></div>
+                            </div>
+                        </div>
+                    </section>
+                     <blockquote>
+                        <h3>지역별 취업 현황 시각화</h3>
+                    </blockquote>
+                    <pre><code># 연도별, 각 업종별 구인인원 시각화
+loc_look_p = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in loc_total_look_p.index:
+  a=loc_total_look_p.loc[t,'서울':].values.tolist()
+  c=[[i] for i in a]
+
+  b=loc_total_look_p.columns.tolist()[1:]
+  d=[[i] for i in b]
+  loc_look_p.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="연도별 각 지역별 구인 인원", subtitle = "마우스를 파이에 올려 구인 인원 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+# 연도별, 각 업종별 구직건수 시각화
+loc_look_j = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in loc_total_look_j.index:
+  a=loc_total_look_j.loc[t,'서울':].values.tolist()
+  c=[[i] for i in a]
+
+  b=loc_total_look_j.columns.tolist()[1:]
+  d=[[i] for i in b]
+  loc_look_j.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="연도별 각 지역별 구직 건수", subtitle = "마우스를 파이에 올려 구직 건 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+x=Page(layout=Page.SimplePageLayout)
+x.add(loc_look_j, loc_look_p)
+
+# 연도별 업종별 구인 구직 추세 분석
+# 타임라인
+loc_ten = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+res=[loc_total_look_p,loc_total_look_j]
+for i in range(17) :
+  attr = loc_total_look_p.index.tolist()
+  ## 꺾은선
+  loc_ten_line = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                  animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                  )).add_xaxis(attr).add_yaxis('신규구인인원',res[0].iloc[:,i]))
+  var=(Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                                            animation_opts=opts.AnimationOpts(
+                                                animation_delay=1000, animation_easing="elasticOut"
+                                                ))).add_xaxis(attr
+                                                              ).set_global_opts(
+                                                                  title_opts=opts.TitleOpts(title='지역별 구직 구인 추세',subtitle="마우스를 올려 정확한 수치를 확인해보세요!"),
+                                                                  yaxis_opts=opts.AxisOpts(min_='Datamin', name = "수",name_location="center",type_="value",is_scale=True),
+                                                                  xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=0)),
+
+                                                                  legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+                                                                  tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+                                                                  ).set_series_opts(
+                                                                      label_opts=opts.LabelOpts(is_show=False)))
+  ## 꺾은선
+  loc_ten.add(var.overlap(Line(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_xaxis(attr).add_yaxis('신규구직건수',res[1].iloc[:,i])).overlap(loc_ten_line),loc_total_look_p.columns.tolist()[i])</code></pre>

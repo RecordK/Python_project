@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+    <title>장르 분석</title>
+    {% include 'include/default1.html' %}
+</head>
+<body class="is-preload">
+
+<!-- Page Wrapper -->
+<div id="page-wrapper">
+
+    <!-- Header -->
+    {% include 'include/header.html' %}
+
+    <!-- Menu -->
+    {% include 'include/menu.html' %}
+
+    <!-- Wrapper -->
+    <section id="wrapper">
+        <header>
+            <div class="inner">
+                <h2>줄거리를 이용한 장르 분석 결과</h2>
+                <h3>{{levels}} </h3>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="wrapper">
+            <div class="inner">
+
+
+                <h2 class="major">출처</h2>
+                <p>KMDb 한국영상자료원</p>
+
+                <section class="features">
+                    <article>
+                        <a href="#" class="image"><img src="../static/images/data.jpg" alt=""/></a>
+                        <h3 class="major">데이터</h3>
+                        <p> 한국 영상자료원 api를 이용했습니다. </p>
+                        <a href="https://www.kmdb.or.kr/info/api/apiDetail/6" class="special">KMDb 한국영상자료원</a>
+                    </article>
+                </section>
+
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    {% include 'include/footer.html' %}
+
+</div>
+
+<!-- Scripts -->
+{% include 'include/script.html' %}
+
+</body>
+</html>

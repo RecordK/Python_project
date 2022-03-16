@@ -1,0 +1,308 @@
+<blockquote>
+                        <h3>교육 수준별 취업 현황 전처리</h3>
+                    </blockquote>
+                    <pre><code>edu0206_1=copy.deepcopy(edu0206).iloc[1:11]
+edu0711_1=copy.deepcopy(edu0711).iloc[1:11]
+edu1216_1=copy.deepcopy(edu1216).iloc[1:11]
+edu1721_1=copy.deepcopy(edu1721).iloc[1:11]
+
+# 데이터 합치기
+edu0221=pd.concat([edu0206_1,edu0711_1,edu1216_1,edu1721_1],axis=1)
+e=edu0221['통계표명:']
+e.columns=['1','2','3','4']
+e.drop(['1','2','3'],axis=1,inplace=True)
+edu0221.drop('통계표명:',axis=1,inplace=True)
+
+# 날짜 변환
+names=[]
+name=[]
+for i in range(2,22):
+  for j in range(1,13):
+    for k in range(1,5):
+      name.append('20{0:02d}'.format(i)+'{0:02d}'.format(j)+'{0:02d}'.format(k))
+name=pd.to_datetime(name)
+edu0221.iloc[0]=name
+edu0221.iloc[0] = edu0221.iloc[0].apply(lambda x:x.strftime('%Y%m'))
+
+# index 설정
+edu0221.index=e.iloc[:,0]
+edu0221.columns=edu0221.iloc[0]
+
+# 1행 제거
+edu0221=edu0221.iloc[1:]
+
+# 이름 설정
+edu0221.index.name='구분'
+edu0221.columns.name='년도'
+
+# 쉼표 제거
+for i in range(1,9):
+  edu0221.iloc[i]=edu0221.iloc[i].str.replace(',','').str.replace('-','0').astype(float)
+
+# 멀티 columns
+edu0221.columns=[edu0221.columns.tolist(),edu0221.iloc[0].tolist()]
+
+# 1행 삭제
+edu0221=edu0221.iloc[1:]
+# 전처리 위한 딥카피
+edutotal=copy.deepcopy(edu0221)
+
+# 취업률
+edu_total_rate=edutotal[edutotal.columns.get_level_values(0).unique().tolist()[0],'취업률'].to_frame()
+for i in range(1,240):
+  edu_total_rate=pd.concat([edu_total_rate,edutotal[edutotal.columns.get_level_values(0).unique().tolist()[i],'취업률'].to_frame()],axis=1)
+edu_total_rate=edu_total_rate.iloc[:-1]
+col=['20{0:02d}'.format(i)+'{0:02d}'.format(j)+'01' for i in range(2,22) for j in range(1,13)]
+edu_total_rate=edu_total_rate.T
+edu_total_rate['날짜']=pd.to_datetime(col)
+edu_total_rate['날짜'] = edu_total_rate['날짜'].apply(lambda x:x.strftime('%Y%m'))
+edu_total_rate.index=edu_total_rate['날짜']
+edu_total_rate.drop('날짜',axis=1,inplace=True)
+
+
+# 구인인원
+edu_total_look_p=edutotal[edutotal.columns.get_level_values(0).unique().tolist()[0],'신규구인인원'].to_frame()
+for i in range(1,240):
+  edu_total_look_p=pd.concat([edu_total_look_p,edutotal[edutotal.columns.get_level_values(0).unique().tolist()[i],'신규구인인원'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'{0:02d}'.format(j)+'01' for i in range(2,22) for j in range(1,13)]
+edu_total_look_p=edu_total_look_p.T
+edu_total_look_p['날짜']=pd.to_datetime(col)
+edu_total_look_p['날짜'] = edu_total_look_p['날짜'].apply(lambda x:x.strftime('%Y%m'))
+edu_total_look_p.index=edu_total_look_p['날짜']
+edu_total_look_p.drop('날짜',axis=1,inplace=True)
+for i in range(240):
+  edu_total_look_p.iloc[i]=edu_total_look_p.iloc[i].astype(int)
+
+# 구직인원
+edu_total_look_j=edutotal[edutotal.columns.get_level_values(0).unique().tolist()[0],'신규구직건수'].to_frame()
+for i in range(1,240):
+  edu_total_look_j=pd.concat([edu_total_look_j,edutotal[edutotal.columns.get_level_values(0).unique().tolist()[i],'신규구직건수'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'{0:02d}'.format(j)+'01' for i in range(2,22) for j in range(1,13)]
+edu_total_look_j=edu_total_look_j.T
+edu_total_look_j['날짜']=pd.to_datetime(col)
+edu_total_look_j['날짜'] = edu_total_look_j['날짜'].apply(lambda x:x.strftime('%Y%m'))
+edu_total_look_j.index=edu_total_look_j['날짜']
+edu_total_look_j.drop('날짜',axis=1,inplace=True)
+for i in range(240):
+  edu_total_look_j.iloc[i]=edu_total_look_j.iloc[i].astype(int)</code></pre>
+                    <section>
+                        <h4>table</h4>
+                        <div class="box alt">
+                            <div class="row gtr-uniform">
+                                <div class="col-12"><span class="image fit"><img
+                                        src="../../static/images/job/edu_table.png"
+                                        alt=""/></span></div>
+                                <div class="col-12"><span class="image fit"><img
+                                        src="../../static/images/job/edu_table2.png"
+                                        alt=""/></span></div>
+                                <div class="col-12"><span class="image fit"><img
+                                        src="../../static/images/job/edu_table3.png"
+                                        alt=""/></span></div>
+                            </div>
+                        </div>
+                    </section>
+                    <blockquote>
+                        <h3>교육 수준별 취업 현황 시각화</h3>
+                    </blockquote>
+                    <pre><code># 전체 시각화
+
+# 전체 꺾은선 그래프
+
+## 꺾은 선 그래프
+attr = edu_total_rate.index.tolist()
+edu_rate = Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS
+                                                              ,animation_opts=opts.AnimationOpts(animation_delay=1000
+                                                                                                  , animation_easing="elasticOut")))
+edu_rate.add_xaxis(attr).add_xaxis(attr).add_yaxis('계',edu_total_rate['계'])
+
+## 추가 꺾은선
+edutotal_info = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                ))).set_global_opts(
+    title_opts=opts.TitleOpts(
+        title="교육 수준에 따른 취업률 추세",subtitle="커서와 스크롤을 조절해 원하는 정보를 확인해보세요!"),
+        yaxis_opts=opts.AxisOpts(name = "취업률 %",name_location="center",type_="value"),
+        xaxis_opts=opts.AxisOpts(name='날짜',axislabel_opts=opts.LabelOpts(rotate=0)),
+        datazoom_opts=[opts.DataZoomOpts(), opts.DataZoomOpts(type_="inside")],
+        legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+        tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+        ).set_series_opts(label_opts=opts.LabelOpts(is_show=True)).add_xaxis(attr)
+for i in edu_total_rate.columns.tolist():
+  if i==edu_total_rate.columns.tolist()[0]:
+    continue
+  edutotal_info.add_yaxis(i,edu_total_rate[i].tolist())
+
+## 합치기
+edutotal_info=edutotal_info.overlap(edu_rate)
+
+# 동적변수로 쪼개기
+edu_total_rate
+for i in range(2,22):
+  globals()['edu20{0:02d}'.format(i)]=edu_total_rate.loc['20{0:02d}01'.format(i):'20{0:02d}12'.format(i),:]
+
+# 월로 바꾸기
+index=['{0:02d}'.format(i) for i in range(1,13)]
+edu2018.index=edu2019.index=edu2020.index=edu2021.index=index
+edu89=(edu2018.add(edu2019))/2
+edu01=(edu2020.add(edu2021))/2
+# COVID 전 후 2개년 평균 취업률 추세
+res=[edu89,edu01]
+year=['PRE-COVID','POST_COVID']
+
+# 타임라인
+rate_by_edu = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+
+for j in edu89.columns.tolist():
+  l=[round(i,2) for i in edu89[j]]
+  l2=[round(i,2) for i in edu01[j]]
+  attr = edu89.index.tolist()
+  ## 꺾은선
+  rate_by_edu_line = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                  animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                  )).add_xaxis(attr).add_yaxis(year[0],l))
+  var=(Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                                            animation_opts=opts.AnimationOpts(
+                                                animation_delay=1000, animation_easing="elasticOut"
+                                                ))).add_xaxis(attr
+                                                              ).set_global_opts(
+                                                                  title_opts=opts.TitleOpts(title=j+' 취업 현황',subtitle="마우스를 올려 정확한 수치를 확인해보세요!"),
+                                                                  yaxis_opts=opts.AxisOpts(min_='Datamin', name = "취업률 %",name_location="center",type_="value",is_scale=True),
+                                                                  xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=0)),
+                                                                  legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+                                                                  tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+                                                                  ).set_series_opts(
+                                                                      label_opts=opts.LabelOpts(is_show=False)))
+  ## 꺾은선
+  rate_by_edu.add(var.overlap(Line(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_xaxis(attr).add_yaxis(year[1],l2)).overlap(rate_by_edu_line),j)
+
+# 구인 인원 월별을 연도별로 통합
+for i in range(2,22):
+  globals()['edu_total_look_p_y20{0:02d}'.format(i)]=edu_total_look_p.loc['20{0:02d}01'.format(i):'20{0:02d}12'.format(i)]
+for i in range(2,22):
+  globals()['edu_total_look_p_y20{0:02d}'.format(i)]=globals()['edu_total_look_p_y20{0:02d}'.format(i)].sum(axis=0)
+  if i == 2:
+    global edu_total_look_p_y
+    edu_total_look_p_y= edu_total_look_p_y2002.to_frame().T
+  else:
+    edu_total_look_p_y=edu_total_look_p_y.append(globals()['edu_total_look_p_y20{0:02d}'.format(i)].to_frame().T)
+
+index=['20{0:02d}'.format(i) for i in range(2,22)]
+edu_total_look_p_y.index=index
+
+# 구직 건수 월별을 연도별로 통합
+for i in range(2,22):
+  globals()['edu_total_look_j_y20{0:02d}'.format(i)]=edu_total_look_j.loc['20{0:02d}01'.format(i):'20{0:02d}12'.format(i)]
+for i in range(2,22):
+  globals()['edu_total_look_j_y20{0:02d}'.format(i)]=globals()['edu_total_look_j_y20{0:02d}'.format(i)].sum(axis=0)
+  if i == 2:
+    global edu_total_look_j_y
+    edu_total_look_j_y= edu_total_look_j_y2002.to_frame().T
+  else:
+    edu_total_look_j_y=edu_total_look_j_y.append(globals()['edu_total_look_j_y20{0:02d}'.format(i)].to_frame().T)
+
+index=['20{0:02d}'.format(i) for i in range(2,22)]
+edu_total_look_j_y.index=index
+
+# 연도별, 교육수준별 구인인원 시각화
+edu_look_p = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in edu_total_look_p_y.index:
+  a=edu_total_look_p_y.loc[t,'초등졸이하':].values.tolist()
+  c=[[i] for i in a]
+
+  b=edu_total_look_p_y.columns.tolist()[1:]
+  d=[[i] for i in b]
+  edu_look_p.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="연도별 교육수준별 구인 인원", subtitle = "마우스를 파이에 올려 구인 인원 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+# 연도별, 교육수준별 구직건수 시각화
+edu_look_j = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in edu_total_look_j_y.index:
+  a=edu_total_look_j_y.loc[t,'초등졸이하':].values.tolist()
+  c=[[i] for i in a]
+
+  b=edu_total_look_j_y.columns.tolist()[1:]
+  d=[[i] for i in b]
+  edu_look_j.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="연도별 교육수준별 구직 건수", subtitle = "마우스를 파이에 올려 구직 건 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+x=Page(layout=Page.SimplePageLayout)
+x.add(edu_look_j, edu_look_p)
+
+# COVID 전 후 2개년 구인인원 평균
+COVID_edu_p=edu_total_look_p_y.loc['2018':'2019'].sum(axis=0).to_frame().T
+COVID_edu_p=COVID_edu_p.append(edu_total_look_p_y.loc['2020':'2021'].sum(axis=0).to_frame().T)
+COVID_edu_p.index=['PRE-COVID19','POST-COVID19']
+COVID_edu_p
+# COVID 전 후 2개년 구직건수 평균
+COVID_edu_j=edu_total_look_j_y.loc['2018':'2019'].sum(axis=0).to_frame().T
+COVID_edu_j=COVID_edu_j.append(edu_total_look_j_y.loc['2020':'2021'].sum(axis=0).to_frame().T)
+COVID_edu_j.index=['PRE-COVID19','POST-COVID19']
+COVID_edu_j
+# 연도별, 각 학력별 구인인원 시각화
+covid_edu_look_p = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in COVID_edu_p.index:
+  a=COVID_edu_p.loc[t,'초등졸이하':].values.tolist()
+  c=[[i] for i in a]
+
+  b=COVID_edu_p.columns.tolist()[1:]
+  d=[[i] for i in b]
+  covid_edu_look_p.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="COVID 전 후 교육 수준별 구인 인원", subtitle = "마우스를 파이에 올려 구인 인원 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+# 연도별, 각 학력별 구직건수 시각화
+covid_edu_look_j = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in COVID_edu_j.index:
+  a=COVID_edu_j.loc[t,'초등졸이하':].values.tolist()
+  c=[[i] for i in a]
+
+  b=COVID_edu_j.columns.tolist()[1:]
+  d=[[i] for i in b]
+  covid_edu_look_j.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="COVID 전 후 교육 수준별 구직 건수", subtitle = "마우스를 파이에 올려 구직 건 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+x=Page(layout=Page.SimplePageLayout)
+x.add(covid_edu_look_j, covid_edu_look_p)
+
+</code></pre>
+                    <section>
+                        <h4>table</h4>
+                        <div class="box alt">
+                            <div class="row gtr-uniform">
+                                <div class="col-12"><span class="image fit"><img
+                                        src="../../static/images/job/edu_table4.png"
+                                        alt=""/></span></div>
+                            </div>
+                        </div>
+                    </section>

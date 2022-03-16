@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, blueprints
-from routes.job_route import bp as mov_bp
-from routes.mov_route import bp as job_bp
+from routes.job_route import bp as job_bp
+from routes.mov_route import bp as mov_bp
 from routes.card_route import bp as card_bp
 import matplotlib
 

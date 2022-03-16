@@ -1,0 +1,23 @@
+<blockquote>
+    <h3>데이터 수집</h3>
+</blockquote>
+<p>데이터는 고용노동부에서 제공하는 2002년 1월부터 2021년 12월까지 총 취업현황, 교육수준별 취업현황, 직종별 취업현황
+    , 지역별 취업현황의 총 20개년의 데이터와 교육통계서비스 2019년 2020년의 데이터를 사용하였습니다.
+    교육통계서비스의 경우에는 21년의 데이터가 집계되지 않았으며 그 양 또한 방대하여 COVID19 전 후 1개년의
+    데이터를 수집하여 사용하였습니다.</p>
+<pre><code>getJ=pd.read_csv('/content/drive/MyDrive/COVID19/get.csv',thousands=',')
+edu0206=pd.read_csv('/content/drive/MyDrive/COVID19/edu0206.csv',thousands=',')
+edu0711=pd.read_csv('/content/drive/MyDrive/COVID19/edu0711.csv',thousands=',')
+edu1216=pd.read_csv('/content/drive/MyDrive/COVID19/edu1216.csv',thousands=',')
+edu1721=pd.read_csv('/content/drive/MyDrive/COVID19/edu1721.csv',thousands=',')
+kind0206=pd.read_csv('/content/drive/MyDrive/COVID19/kind0206.csv',thousands=',')
+kind0711=pd.read_csv('/content/drive/MyDrive/COVID19/kind0711.csv',thousands=',')
+kind1216=pd.read_csv('/content/drive/MyDrive/COVID19/kind1216.csv',thousands=',')
+kind1721=pd.read_csv('/content/drive/MyDrive/COVID19/kind1721.csv',thousands=',')
+loc0206=pd.read_csv('/content/drive/MyDrive/COVID19/loc0206.csv',thousands=',')
+loc0711=pd.read_csv('/content/drive/MyDrive/COVID19/loc0711.csv',thousands=',')
+loc1216=pd.read_csv('/content/drive/MyDrive/COVID19/loc1216.csv',thousands=',')
+loc1721=pd.read_csv('/content/drive/MyDrive/COVID19/loc1721.csv',thousands=',')
+loc0221=pd.read_csv('/content/drive/MyDrive/COVID19/loc0221.csv',thousands=',')
+edu2020=pd.read_csv('/content/drive/MyDrive/COVID19/2020.csv',thousands=',')
+edu2019=pd.read_csv('/content/drive/MyDrive/COVID19/2019.csv',thousands=',')</code></pre>

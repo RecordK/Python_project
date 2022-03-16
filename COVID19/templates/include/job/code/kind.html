@@ -1,0 +1,361 @@
+<blockquote>
+                        <h3>직종별 취업현황 전처리</h3>
+                    </blockquote>
+                    <pre><code>kind0206_1=copy.deepcopy(kind0206).iloc[1:28]
+kind0711_1=copy.deepcopy(kind0711).iloc[1:28]
+kind1216_1=copy.deepcopy(kind1216).iloc[1:28]
+kind1721_1=copy.deepcopy(kind1721).iloc[1:28]
+# 데이터 합치기
+kind0221=pd.concat([kind0206_1,kind0711_1,kind1216_1,kind1721_1],axis=1)
+k=kind0221['통계표명:']
+k.columns=['1','2','3','4']
+k.drop(['1','2','3'],axis=1,inplace=True)
+kind0221.drop('통계표명:',axis=1,inplace=True)
+
+
+# 날짜 변환
+names=[]
+name=[]
+for i in range(2,22):
+  for j in range(1,13):
+    for l in range(1,5):
+      name.append('20{0:02d}'.format(i)+'{0:02d}'.format(j)+'{0:02d}'.format(l))
+name=pd.to_datetime(name)
+kind0221.iloc[0]=name
+kind0221.iloc[0] = kind0221.iloc[0].apply(lambda x:x.strftime('%Y%m'))
+# index 설정
+kind0221.index=k.iloc[:,0]
+kind0221.columns=kind0221.iloc[0]
+
+
+# 1행 제거
+kind0221=kind0221.iloc[1:]
+# 이름 설정
+kind0221.index.name='구분'
+kind0221.columns.name='년도'
+# 쉼표 제거
+for i in range(1,26):
+  kind0221.iloc[i]=kind0221.iloc[i].str.replace(',','').str.replace('-','0').astype(float)
+# 멀티 columns
+kind0221.columns=[kind0221.columns.tolist(),kind0221.iloc[0].tolist()]
+
+
+
+# 1행 삭제
+kind0221=kind0221.iloc[1:]
+
+# 전처리 위한 딥카피
+kindtotal=copy.deepcopy(kind0221)
+
+# 취업률
+kind_total_rate=kindtotal[kindtotal.columns.get_level_values(0).unique().tolist()[0],'취업률'].to_frame()
+for i in range(1,240):
+  kind_total_rate=pd.concat([kind_total_rate,kindtotal[kindtotal.columns.get_level_values(0).unique().tolist()[i],'취업률'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'{0:02d}'.format(j)+'01' for i in range(2,22) for j in range(1,13)]
+kind_total_rate=kind_total_rate.T
+kind_total_rate['날짜']=pd.to_datetime(col)
+kind_total_rate['날짜'] = kind_total_rate['날짜'].apply(lambda x:x.strftime('%Y%m'))
+kind_total_rate.index=kind_total_rate['날짜']
+kind_total_rate.drop('날짜',axis=1,inplace=True)
+
+# 구인인원
+kind_total_look_p=kindtotal[kindtotal.columns.get_level_values(0).unique().tolist()[0],'신규구인인원'].to_frame()
+for i in range(1,240):
+  kind_total_look_p=pd.concat([kind_total_look_p,kindtotal[kindtotal.columns.get_level_values(0).unique().tolist()[i],'신규구인인원'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'{0:02d}'.format(j)+'01' for i in range(2,22) for j in range(1,13)]
+kind_total_look_p=kind_total_look_p.T
+kind_total_look_p['날짜']=pd.to_datetime(col)
+kind_total_look_p['날짜'] = kind_total_look_p['날짜'].apply(lambda x:x.strftime('%Y%m'))
+kind_total_look_p.index=kind_total_look_p['날짜']
+kind_total_look_p.drop('날짜',axis=1,inplace=True)
+for i in range(240):
+  kind_total_look_p.iloc[i]=kind_total_look_p.iloc[i].astype(int)
+
+# 구직인원
+kind_total_look_j=kindtotal[kindtotal.columns.get_level_values(0).unique().tolist()[0],'신규구직건수'].to_frame()
+for i in range(1,240):
+  kind_total_look_j=pd.concat([kind_total_look_j,kindtotal[kindtotal.columns.get_level_values(0).unique().tolist()[i],'신규구직건수'].to_frame()],axis=1)
+col=['20{0:02d}'.format(i)+'{0:02d}'.format(j)+'01' for i in range(2,22) for j in range(1,13)]
+kind_total_look_j=kind_total_look_j.T
+kind_total_look_j['날짜']=pd.to_datetime(col)
+kind_total_look_j['날짜'] = kind_total_look_j['날짜'].apply(lambda x:x.strftime('%Y%m'))
+kind_total_look_j.index=kind_total_look_j['날짜']
+kind_total_look_j.drop('날짜',axis=1,inplace=True)
+for i in range(240):
+  kind_total_look_j.iloc[i]=kind_total_look_j.iloc[i].astype(int)</code></pre>
+                    <section>
+                        <h4>table</h4>
+                        <div class="box alt">
+                            <div class="row gtr-uniform">
+                                <div class="col-12"><span class="image fit"><img
+                                        src="../../static/images/job/kind_table.png"
+                                        alt=""/></span></div>
+                            </div>
+                        </div>
+                    </section>
+                     <blockquote>
+                        <h3>직종별 취업 현황 시각화</h3>
+                    </blockquote>
+                    <pre><code># 전체 시각화
+
+# 전체 꺾은선 그래프
+
+## 꺾은 선 그래프
+attr = kind_total_rate.index.tolist()
+kind_rate = Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS
+                                                              ,animation_opts=opts.AnimationOpts(animation_delay=1000
+                                                                                                  , animation_easing="elasticOut")))
+kind_rate.add_xaxis(attr).add_xaxis(attr).add_yaxis('계',kind_total_rate['계'])
+
+## 추가 꺾은선
+kindrate_info = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                ))).set_global_opts(
+    title_opts=opts.TitleOpts(
+        title="직종에 따른 취업률 추세",subtitle="커서와 스크롤을 조절해 원하는 정보를 확인해보세요!"),
+        yaxis_opts=opts.AxisOpts(name = "취업률 %",name_location="center",type_="value"),
+        xaxis_opts=opts.AxisOpts(name='날짜',axislabel_opts=opts.LabelOpts(rotate=0)),
+        datazoom_opts=[opts.DataZoomOpts(), opts.DataZoomOpts(type_="inside")],
+        legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+        tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+        ).set_series_opts(label_opts=opts.LabelOpts(is_show=True)).add_xaxis(attr)
+for i in kind_total_rate.columns.tolist():
+  if i==kind_total_rate.columns.tolist()[0]:
+    continue
+  kindrate_info.add_yaxis(i,kind_total_rate[i].tolist())
+
+## 합치기
+kindrate_info=kindrate_info.overlap(kind_rate)
+
+# 구인 인원 월별을 연도별로 통합
+for i in range(2,22):
+  globals()['kind_total_look_p_y20{0:02d}'.format(i)]=kind_total_look_p.loc['20{0:02d}01'.format(i):'20{0:02d}12'.format(i)]
+for i in range(2,22):
+  globals()['kind_total_look_p_y20{0:02d}'.format(i)]=globals()['kind_total_look_p_y20{0:02d}'.format(i)].sum(axis=0)
+  if i == 2:
+    global kind_total_look_p_y
+    kind_total_look_p_y= kind_total_look_p_y2002.to_frame().T
+  else:
+    kind_total_look_p_y=kind_total_look_p_y.append(globals()['kind_total_look_p_y20{0:02d}'.format(i)].to_frame().T)
+
+index=['20{0:02d}'.format(i) for i in range(2,22)]
+kind_total_look_p_y.index=index
+
+# 구직 건수 월별을 연도별로 통합
+for i in range(2,22):
+  globals()['kind_total_look_j_y20{0:02d}'.format(i)]=kind_total_look_j.loc['20{0:02d}01'.format(i):'20{0:02d}12'.format(i)]
+for i in range(2,22):
+  globals()['kind_total_look_j_y20{0:02d}'.format(i)]=globals()['kind_total_look_j_y20{0:02d}'.format(i)].sum(axis=0)
+  if i == 2:
+    global kind_total_look_j_y
+    kind_total_look_j_y= kind_total_look_j_y2002.to_frame().T
+  else:
+    kind_total_look_j_y=kind_total_look_j_y.append(globals()['kind_total_look_j_y20{0:02d}'.format(i)].to_frame().T)
+
+index=['20{0:02d}'.format(i) for i in range(2,22)]
+kind_total_look_j_y.index=index
+
+# 연도별, 각 직종별 구인인원 시각화
+kind_look_p = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in kind_total_look_p_y.index:
+  a=kind_total_look_p_y.loc[t,'관리직':].values.tolist()
+  c=[[i] for i in a]
+
+  b=kind_total_look_p_y.columns.tolist()[1:]
+  d=[[i] for i in b]
+  kind_look_p.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="연도별 각 직종별 구인 인원", subtitle = "마우스를 파이에 올려 구인 인원 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+# 연도별, 각 직종별 구직건수 시각화
+kind_look_j = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in kind_total_look_j_y.index:
+  a=kind_total_look_j_y.loc[t,'관리직':].values.tolist()
+  c=[[i] for i in a]
+
+  b=kind_total_look_j_y.columns.tolist()[1:]
+  d=[[i] for i in b]
+  kind_look_j.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="연도별 각 직종별 구직 건수", subtitle = "마우스를 파이에 올려 구직 건 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+x=Page(layout=Page.SimplePageLayout)
+x.add(kind_look_j, kind_look_p)
+
+# COVID 전 후 2개년 구인인원 평균
+COVID_kind_p=kind_total_look_p_y.loc['2018':'2019'].sum(axis=0).to_frame().T
+COVID_kind_p=COVID_kind_p.append(kind_total_look_p_y.loc['2020':'2021'].sum(axis=0).to_frame().T)
+COVID_kind_p.index=['PRE-COVID19','POST-COVID19']
+COVID_kind_p
+# COVID 전 후 2개년 구직건수 평균
+COVID_kind_j=kind_total_look_j_y.loc['2018':'2019'].sum(axis=0).to_frame().T
+COVID_kind_j=COVID_kind_j.append(kind_total_look_j_y.loc['2020':'2021'].sum(axis=0).to_frame().T)
+COVID_kind_j.index=['PRE-COVID19','POST-COVID19']
+COVID_kind_j
+# 연도별, 각 직종별 구인인원 시각화
+covid_kind_look_p = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in COVID_kind_p.index:
+  a=COVID_kind_p.loc[t,'관리직':].values.tolist()
+  c=[[i] for i in a]
+
+  b=COVID_kind_p.columns.tolist()[1:]
+  d=[[i] for i in b]
+  covid_kind_look_p.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="COVID 전 후 각 직종별 구인 인원", subtitle = "마우스를 파이에 올려 구인 인원 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+# 연도별, 각 직종별 구직건수 시각화
+covid_kind_look_j = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+
+for t in COVID_kind_j.index:
+  a=COVID_kind_j.loc[t,'관리직':].values.tolist()
+  c=[[i] for i in a]
+
+  b=COVID_kind_j.columns.tolist()[1:]
+  d=[[i] for i in b]
+  covid_kind_look_j.add((Pie(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add("", [list(z) for z in zip(b, c)],
+                      rosetype="radius",radius=["30%", "60%"], label_opts=opts.LabelOpts(position='outside', formatter="{d}%")))
+      .set_series_opts(label_opts=opts.LabelOpts(is_show=True,position='top'))
+      .set_global_opts(title_opts=opts.TitleOpts(title="COVID 전 후 각 직종별 구직 건수", subtitle = "마우스를 파이에 올려 구직 건 수를 확인해보세요!"),
+                      legend_opts=opts.LegendOpts(type_ = 'scroll', pos_bottom ="60%",pos_right="-3%", orient="vertical",legend_icon ='pin'))
+    ,"{}년도".format(t))
+x=Page(layout=Page.SimplePageLayout)
+x.add(covid_kind_look_j, covid_kind_look_p)
+# 전체 시각화
+
+# 전체 꺾은선 그래프
+
+## 꺾은 선 그래프
+attr = kind_total_look_p.index.tolist()
+klook_p = Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS
+                                                              ,animation_opts=opts.AnimationOpts(animation_delay=1000
+                                                                                                  , animation_easing="elasticOut")))
+klook_p.add_xaxis(attr).add_xaxis(attr).add_yaxis('계',kind_total_look_p['계'])
+
+## 추가 꺾은선
+klook_p_info = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                ))).set_global_opts(
+    title_opts=opts.TitleOpts(
+        title="직종에 따른 구인 인원 추세",subtitle="커서와 스크롤을 조절해 원하는 정보를 확인해보세요!"),
+        yaxis_opts=opts.AxisOpts(name = "취업률 %",name_location="center",type_="value"),
+        xaxis_opts=opts.AxisOpts(name='날짜',axislabel_opts=opts.LabelOpts(rotate=0)),
+        datazoom_opts=[opts.DataZoomOpts(), opts.DataZoomOpts(type_="inside")],
+        legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+        tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+        ).set_series_opts(label_opts=opts.LabelOpts(is_show=True)).add_xaxis(attr)
+for i in kind_total_look_p.columns.tolist():
+  if i==kind_total_look_p.columns.tolist()[0]:
+    continue
+  klook_p_info.add_yaxis(i,kind_total_look_p[i].tolist())
+
+## 합치기
+klook_p_info=klook_p_info.overlap(klook_p)
+
+# COVID 전 후 구인 2개년 추출
+COV_kind_18=kind_total_look_p.loc['201801':'201812']
+COV_kind_19=kind_total_look_p.loc['201901':'201912']
+COV_kind_20=kind_total_look_p.loc['202001':'202012']
+COV_kind_21=kind_total_look_p.loc['202101':'202112']
+
+# COVID 전 후 구직 2개년 추출
+COV_kind_j18=kind_total_look_j.loc['201801':'201812']
+COV_kind_j19=kind_total_look_j.loc['201901':'201912']
+COV_kind_j20=kind_total_look_j.loc['202001':'202012']
+COV_kind_j21=kind_total_look_j.loc['202101':'202112']
+
+# 월로 바꾸기
+index=['{0:02d}'.format(i) for i in range(1,13)]
+COV_kind_18.index=COV_kind_19.index=COV_kind_20.index=COV_kind_21.index=COV_kind_j18.index=COV_kind_j19.index=COV_kind_j20.index=COV_kind_j21.index=index
+PRE_COV_kind=(COV_kind_18.add(COV_kind_19))
+POST_COV_kind=(COV_kind_20.add(COV_kind_21))/2
+PRE_COV_jkind=(COV_kind_j18.add(COV_kind_j19))/2
+POST_COV_jkind=(COV_kind_j20.add(COV_kind_j21))/2
+
+# COVID 전 후 2개년 평균 직종별 구인 추세 분석
+res=[PRE_COV_kind,POST_COV_kind]
+year=['PRE-COVID','POST_COVID']
+
+# 타임라인
+Cov_lookF_ten = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+for i in range(25) :
+  l=[round(i,2) for i in PRE_COV_kind[PRE_COV_kind.columns.tolist()[i]]]
+  l2=[round(i,2) for i in POST_COV_kind[PRE_COV_kind.columns.tolist()[i]]]
+  attr = PRE_COV_kind.index.tolist()
+  ## 꺾은선
+  Cov_kind_line = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                  animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                  )).add_xaxis(attr).add_yaxis(year[0],l))
+  var=(Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                                            animation_opts=opts.AnimationOpts(
+                                                animation_delay=1000, animation_easing="elasticOut"
+                                                ))).add_xaxis(attr
+                                                              ).set_global_opts(
+                                                                  title_opts=opts.TitleOpts(title=PRE_COV_kind.columns.tolist()[i]+' 구인 추세',subtitle="마우스를 올려 정확한 수치를 확인해보세요!"),
+                                                                  yaxis_opts=opts.AxisOpts(min_='Datamin', name = "명",name_location="center",type_="value",is_scale=True),
+                                                                  xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=0)),
+                                                                  legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+                                                                  tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+                                                                  ).set_series_opts(
+                                                                      label_opts=opts.LabelOpts(is_show=False)))
+  ## 꺾은선
+  Cov_lookF_ten.add(var.overlap(Line(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_xaxis(attr).add_yaxis(year[1],l2)).overlap(Cov_kind_line),PRE_COV_kind.columns.tolist()[i])
+
+# COVID 전 후 2개년 평균 직종별 구인 추세 분석
+res=[PRE_COV_jkind,POST_COV_jkind]
+year=['PRE-COVID','POST_COVID']
+
+# 타임라인
+Cov_lookF_jten = Timeline(
+    init_opts=opts.InitOpts(
+        theme=ThemeType.WESTEROS)
+).add_schema(is_auto_play=True)
+for i in range(25) :
+  l=[round(i,2) for i in PRE_COV_jkind[PRE_COV_jkind.columns.tolist()[i]]]
+  l2=[round(i,2) for i in POST_COV_jkind[PRE_COV_jkind.columns.tolist()[i]]]
+  attr = PRE_COV_jkind.index.tolist()
+  ## 꺾은선
+  Cov_kind_jline = (Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                  animation_opts=opts.AnimationOpts(animation_delay=1000, animation_easing="elasticOut")
+                  )).add_xaxis(attr).add_yaxis(year[0],l))
+  var=(Line(init_opts=opts.InitOpts( theme=ThemeType.WESTEROS,
+                                            animation_opts=opts.AnimationOpts(
+                                                animation_delay=1000, animation_easing="elasticOut"
+                                                ))).add_xaxis(attr
+                                                              ).set_global_opts(
+                                                                  title_opts=opts.TitleOpts(title=PRE_COV_kind.columns.tolist()[i]+' 구직 추세',subtitle="마우스를 올려 정확한 수치를 확인해보세요!"),
+                                                                  yaxis_opts=opts.AxisOpts(min_='Datamin', name = "명",name_location="center",type_="value",is_scale=True),
+                                                                  xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=0)),
+                                                                  legend_opts=opts.LegendOpts(pos_left="40%",legend_icon='pin'),
+                                                                  tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
+                                                                  ).set_series_opts(
+                                                                      label_opts=opts.LabelOpts(is_show=False)))
+  ## 꺾은선
+  Cov_lookF_jten.add(var.overlap(Line(init_opts=opts.InitOpts(theme=ThemeType.WESTEROS)).add_xaxis(attr).add_yaxis(year[1],l2)).overlap(Cov_kind_jline),PRE_COV_jkind.columns.tolist()[i])
+
+y=Page(layout=Page.SimplePageLayout)
+y.add(Cov_lookF_ten, Cov_lookF_jten)</code></pre>

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+    <title>장르 분석</title>
+    {% include 'include/default1.html' %}
+</head>
+<body class="is-preload">
+
+<!-- Page Wrapper -->
+<div id="page-wrapper">
+
+    <!-- Header -->
+    {% include 'include/header.html' %}
+
+    <!-- Menu -->
+    {% include 'include/menu.html' %}
+
+    <!-- Wrapper -->
+    <section id="wrapper">
+        <header>
+            <div class="inner">
+                <h2>줄거리를 이용한 장르 분석</h2>
+                <p>42개년의 영화 데이터를 통하여 줄거리를 작성하여 장르를 파악함. </p>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="wrapper">
+            <div class="inner">
+
+                <h2 class="major">영화 리뷰 감정 입력</h2>
+                 <section>
+                    <h3 class="major">Form</h3>
+                    <form method="post" action="/movie/review-test">
+                            <div class="col-12">
+                                <label for="demo-message">Message</label>
+                                <textarea type="text" name="review" id="demo-message" rows="6"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <ul class="actions">
+                                    <li><input id="a" type="submit" value="입력" class="primary"/></li>
+                                    <li><input id="b" type="reset" value="초기화"/></li>
+                                </ul>
+                            </div>
+                    </form>
+                     <form method="post" action="/movie/review-test2">
+                                    <li><input id="c" type="submit" value="엑셀" class="primary"/></li>
+                                </ul>
+                            </div>
+                    </form>
+                </section>
+
+
+                <h2 class="major">출처</h2>
+                <p>네이버</p>
+
+                <section class="features">
+                    <article>
+                        <a href="#" class="image"><img src="../static/images/data.jpg" alt=""/></a>
+                        <h3 class="major">데이터</h3>
+                        <p> naver를 이용했습니다. </p>
+                        <a href="https://movie.naver.com/movie/point/af/list.naver?st=mcode&sword=190991&target=after" class="special">네이버</a>
+                    </article>
+                </section>
+
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    {% include 'include/footer.html' %}
+
+</div>
+
+<!-- Scripts -->
+{% include 'include/script.html' %}
+
+</body>
+</html>
